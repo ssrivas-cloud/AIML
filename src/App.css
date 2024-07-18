@@ -1,0 +1,60 @@
+.box-section-container {
+    /* height: 50vh; */
+    /* overflow: auto; */
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+
+
+button {
+    margin: 3px;
+}
+
+.app-section.list-report {
+    width: 18%;
+    margin: 0 0 12px 24px;
+}
+
+[id^="simple-tabpanel-"]>div {
+    padding: 0;
+}
+
+.MuiOutlinedInput-root,
+div[role="combobox"] {
+    height: 40px !important;
+    box-sizing: border-box;
+    padding-top: 8.5px;
+    padding-bottom: 8.5px;
+
+}
+
+.MuiFormControl-root {
+    >label[data-shrink="false"] {
+        position: absolute;
+        top: 50%;
+        transform: translate(10%, -50%);
+    }
+}
+
+.axes-wrapper {
+    .MuiFormControl-root {
+        >label[data-shrink="false"] {
+            transform: translate(30%, -50%);
+
+        }
+    }
+}
+
+.app-section.no-report{
+    height: 68vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.app-section.no-report img{
+    margin-bottom: 10px;
+}
