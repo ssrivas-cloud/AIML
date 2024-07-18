@@ -1,0 +1,15 @@
+.linear-regression-wrapper {
+    .linear-graph-btn {
+        height: 40px;
+        margin: 8px;
+        border: 0;
+        color: #ffffff;
+        &.btn-grey{
+            background-color: #BCC0C2;
+          }
+    }
+    .linear-regression-table{
+        margin-top: 10px;
+    
+    }
+}
