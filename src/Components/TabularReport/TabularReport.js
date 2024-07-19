@@ -5,16 +5,17 @@
 
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Box, FormControl, InputLabel, Select, MenuItem, ListItemText, OutlinedInput, TableContainer, Paper } from '@mui/material';
+import { Checkbox, Button, Table, TableBody, TableCell, TableHead, TableRow, Box, FormControl, InputLabel, Select, MenuItem, ListItemText, OutlinedInput, TableContainer, Paper, Dialog, DialogTitle, DialogContent } from '@mui/material';
 import CardComponent from '../LinearRegression/CardComponent';
 import AppliedFilters from '../../Utilities/AppliedFilters';
 import Dropdown from '../../Utilities/Dropdown';
+import RegressionAnalysisPopup from '../RegressionAnalysisPopup/RegressionAnalysisPopup';
 const TabularReport = ({ fields, rows, dataBycolumn }) => {
 
     const [updateRow, setUpdateRow] = useState(false)
     const [regressionResult, setRegressionResult] = useState('')
     const [showFilters, setShowFilters] = useState(false);
-
+    const [openDialog, setOpenDialog] = useState(false);
     const numericFields = fields.filter((field) => field.type !== "string")
     const headerName = []
 
@@ -24,10 +25,17 @@ const TabularReport = ({ fields, rows, dataBycolumn }) => {
         }
         return reference.replace(/ /g, '');
     };
+    const handleOpenDialog = () => {
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
     return (
         <div className='tabular-report-wrapper'>
             <Box sx={{ minWidth: 120, maxHeight: '50vh', padding: 2 }}>
-           
+
                 <TableContainer component={Paper} className='tabular-report-table'>
                     <Table aria-label="simple table">
                         <TableHead>
@@ -76,9 +84,18 @@ const TabularReport = ({ fields, rows, dataBycolumn }) => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-
+                <div className='regression-btn'>
+            <button className="btn" variant="contained" onClick={handleOpenDialog}>Run regression analysis</button>
+        </div>
             </Box>
-
+            <Dialog open={openDialog} onClose={handleCloseDialog} aria-labelledby="regression-analysis-dialog-title" className='regression-dialog'>
+                <DialogTitle id="regression-analysis-dialog-title">Run regression analysis</DialogTitle>
+                
+           <p>To run the regression analysis please select a dependent and independent variable.</p>
+                <DialogContent>
+                    <RegressionAnalysisPopup numericFields={numericFields} />
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
