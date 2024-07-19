@@ -14,6 +14,7 @@ import Tab from '@mui/material/Tab';
 import { Drawer, Button, Box } from '@mui/material';
 import TabularReport from '../Components/TabularReport/TabularReport'
 import AppliedFilters from '../Utilities/AppliedFilters';
+import RightPanel from './RightPanel/RightPanel';
 
 const VisualizationQueryComponent = () => {
   const [queryResults, setQueryResults] = useState(null);
@@ -131,10 +132,7 @@ const VisualizationQueryComponent = () => {
   const handleFilterColumn = (e) => {
     const { value } = e.target;
     const newFilterColumn = typeof value === 'string' ? value.split(',') : value;
-
     setFilterColumn(newFilterColumn);
-
-    // Use a callback pattern to ensure we use the updated state
     setQueryResults(prevState => {
       const columnIndexes = newFilterColumn.map(col => originalData.dataset.fields.findIndex(field => field.reference === col));
       const newRows = originalData.dataset.rows.map(row => columnIndexes.map(index => row[index]));
@@ -153,8 +151,21 @@ const VisualizationQueryComponent = () => {
   };
   const handleReset = () => {
     setFilterColumn([]);
+    setQueryResults(originalData);
     setShowFilters(false);
-};
+  };
+  const removeSingleFilter = (index) => {
+    const newFilterColumn = filterColumn.filter((_, i) => i !== index);
+    setFilterColumn(newFilterColumn);
+    setQueryResults(prevState => {
+      const columnIndexes = newFilterColumn.map(col => originalData.dataset.fields.findIndex(field => field.reference === col));
+      const newRows = originalData.dataset.rows.map(row => columnIndexes.map(index => row[index]));
+      const newFields = columnIndexes.map(index => originalData.dataset.fields[index]);
+      return { ...prevState, dataset: { ...prevState.dataset, fields: newFields,
+        rows: newRows  } }; 
+    });
+    setShowFilters(true);
+  };
   return (
 
     <section className="container-fluid h-100 query-component">
@@ -176,30 +187,12 @@ const VisualizationQueryComponent = () => {
                 <Button variant="contained" color="primary" className='btn adv-filter' onClick={toggleRightPanel(true)}>
                   Advanced Filter
                 </Button>
-                <Drawer
-                  anchor="right"
-                  open={rightPanelOpen}
-                  onClose={toggleRightPanel(false)}
-                >
-                  <div
-                    role="presentation"
-                    onClick={toggleRightPanel(false)}
-                    onKeyDown={toggleRightPanel(false)}
-                    style={{ width: 900, padding: 20 }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      style={{ marginTop: 20 }}
-                    >
-                      Apply advanced filter
-                    </Button>
-                  </div>
-                </Drawer>
+                <RightPanel onOpen={rightPanelOpen} handleEvent={toggleRightPanel(false)}/>
                 {showFilters && (
                 <AppliedFilters
                     variable2={filterColumn}
                     onReset={handleReset}
+                    onRemoveVariable2={removeSingleFilter}
                 />
             )}
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -224,6 +217,7 @@ const VisualizationQueryComponent = () => {
               </Box>
 
             }
+           
           </div>
           {isLoading && <h2 className="text-center">Loading...</h2>}
           {!isLoading && !isQueryExecutedSuccessfully && <h4 className="text-center">Query does not return any data.</h4>}
