@@ -43,7 +43,7 @@ const VisualizationQueryComponent = () => {
     return reference.replace(/ /g, '');
   };
 
-
+  console.log(updatedColumns)
   useEffect(() => {
     const executeQuery = () => {
       return axios({
