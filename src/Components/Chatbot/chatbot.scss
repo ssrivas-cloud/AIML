@@ -1,0 +1,14 @@
+.chatBotTextField {
+  .MuiOutlinedInput-root {
+    font-size: 13px;
+    border: none !important;
+    box-shadow: none !important;
+
+    > fieldset {
+      border: none !important;
+    }
+    &:hover fieldset {
+      border-color: transparent !important;
+    }
+  }
+}

@@ -82,7 +82,6 @@ const ListReports = () => {
   const dispatch = useDispatch();
   const { reportList, loading, error } = useSelector((state) => state.reportList);
   const selectedVisualization = useSelector((state) => state.visualization.selectedVisualization);
-
   useEffect(() => {
     dispatch(fetchReportList());
   }, [dispatch]);

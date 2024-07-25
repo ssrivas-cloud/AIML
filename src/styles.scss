@@ -1,11 +1,11 @@
-@import './Components/Header/header.scss';
-@import './Components/Clustering/clustering.scss';
-@import './Components/linearRegression/linearRegression.scss';
-@import './Components/Eda/eda.scss';
-@import './Components/TabularReport/tabularReport.scss';
+@import "./Components/Header/header.scss";
+@import "./Components/Clustering/clustering.scss";
+@import "./Components/linearRegression/linearRegression.scss";
+@import "./Components/Eda/eda.scss";
+@import "./Components/TabularReport/tabularReport.scss";
+@import "./Components/Chatbot/chatbot.scss";
 
-
-$primary-color: #0078CE;
+$primary-color: #0078ce;
 
 body {
   //   background-color: $primary-color;
@@ -34,12 +34,12 @@ button {
   cursor: pointer;
 
   &.btn {
-    background-color: #0076AD !important;
+    background-color: #0076ad !important;
     color: #ffffff !important;
-    &.adv-filter{
+    &.adv-filter {
       margin: 8px;
       background-color: #ffffff !important;
-      color: #0076AD !important;
+      color: #0076ad !important;
       border: 1px solid !important;
       font-weight: bold;
       // font-size: 16px;
@@ -47,23 +47,25 @@ button {
   }
 
   &.disabled {
-    background-color: #BCC0C2 !important;
+    background-color: #bcc0c2 !important;
+  }
+  &.inactive {
+    background-color: #bcc0c2 !important;
   }
 }
 
 thead {
-  background-color: #F2F2F3 !important;
+  background-color: #f2f2f3 !important;
 
   th {
-    color: #3C4043 !important;
+    color: #3c4043 !important;
     font-weight: bold !important;
   }
 }
 
 tr {
   td {
-    background-color: #FFFFFF !important;
-
+    background-color: #ffffff !important;
   }
 }
 
@@ -102,26 +104,26 @@ Table {
   background-color: #f5f5f5;
 }
 
-.applied-filters{
+.applied-filters {
   margin: 20px 0;
   display: flex;
   align-items: center;
-   h6{
+  h6 {
     text-transform: unset;
-   }
-   button{
-    color: #0076AD;
+  }
+  button {
+    color: #0076ad;
     background-color: transparent;
     border: none;
     font-weight: bold;
-    margin: 0 10px
-   }
+    margin: 0 10px;
+  }
   .chips {
     display: flex;
 
-    > div{
-      background-color: #F1FAFE;
-      color: #0076AD;
+    > div {
+      background-color: #f1fafe;
+      color: #0076ad;
       border-radius: 80px;
       padding: 4px 8px;
       margin: 4px;
@@ -129,7 +131,6 @@ Table {
   }
 }
 
-.filter-dropdowns{
+.filter-dropdowns {
   margin-left: 6px;
 }
-

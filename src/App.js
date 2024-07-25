@@ -27,16 +27,15 @@ function App() {
     dispatch(setFieldsOfSelectedVisualization(fields));
     // setFieldsOfSelectedVisualization(fields);
   };
-
+  console.log(fieldsOfSelectedVisualization)
 
   return (
     <>
       <Header />
-      <main
-      ><section className="app-section list-report">
+      <main>
+        <section className="app-section list-report">
           {/* <ListReports onVisualizationSelected={whenVisualizationIsSelected} visualizationSelected={selectedVisualization} /> */}
           <ListReports />
-
         </section>
         {!selectedVisualization &&
           <div className="app-section no-report">
@@ -61,7 +60,8 @@ function App() {
             {(fieldsOfSelectedVisualization?.length <= 0 || !fieldsOfSelectedVisualization.query) && <div className="text-center mt-4">No execution available yet (Loading...)</div>}
           </div>
         </section>
-        }</main>
+        }
+        </main>
 
     </>
   );
