@@ -36,7 +36,7 @@ const TabularReport = ({ fields, rows, dataBycolumn }) => {
 
   const dispatch = useDispatch();
 
-  const numericFields = fields.filter((field) => field.type !== "string");
+  // const numericFields = fields.filter((field) => field.type !== "string");
   const headerName = [];
 
   const removeBlankSpaces = (reference) => {
@@ -159,11 +159,10 @@ const TabularReport = ({ fields, rows, dataBycolumn }) => {
         </DialogTitle>
 
         <p>
-          To run the regression analysis please select a dependent and
-          independent variable.
+        To run the regression analysis please select a dependent variable (The value which you want to be forecasted).
         </p>
         <DialogContent>
-          <RegressionAnalysisPopup numericFields={numericFields} />
+          <RegressionAnalysisPopup numericFields={fields} />
         </DialogContent>
       </Dialog>
     </div>

@@ -11,6 +11,8 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { Drawer, Button, Box } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Checkbox, ListItemText, FormHelperText } from '@mui/material';
+
 import TabularReport from "../Components/TabularReport/TabularReport";
 import AppliedFilters from "../Utilities/AppliedFilters";
 import RightPanel from "./RightPanel/RightPanel";
@@ -26,6 +28,7 @@ const VisualizationQueryComponent = () => {
   const [originalData, setOriginalData] = useState();
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentSelection, setCurrentSelection] = useState([]);
 
   const selectedVisualization = useSelector(
     (state) => state.visualization.selectedVisualization
@@ -63,17 +66,17 @@ const VisualizationQueryComponent = () => {
         data: fieldsOfSelectedVisualization.query
           ? fieldsOfSelectedVisualization
           : {
-              query: {
-                select: {
-                  fieldsOfSelectedVisualization,
-                },
-              },
-              dataSource: {
-                reference: {
-                  uri: selectedVisualization.uri,
-                },
+            query: {
+              select: {
+                fieldsOfSelectedVisualization,
               },
             },
+            dataSource: {
+              reference: {
+                uri: selectedVisualization.uri,
+              },
+            },
+          },
       }).then(({ data }) => data);
     };
 
@@ -136,17 +139,16 @@ const VisualizationQueryComponent = () => {
       "aria-controls": `simple-tabpanel-${index}`,
     };
   }
-
   const handleFilterColumn = (e) => {
     const { value } = e.target;
-    const newFilterColumn =
-      typeof value === "string" ? value.split(",") : value;
-    setFilterColumn(newFilterColumn);
+    const newSelection = typeof value === "string" ? value.split(",") : value;
+    setCurrentSelection(newSelection);
+  };
+  const applyFilterColumn = () => {
+    setFilterColumn(currentSelection);
     setQueryResults((prevState) => {
-      const columnIndexes = newFilterColumn.map((col) =>
-        originalData.dataset.fields.findIndex(
-          (field) => field.reference === col
-        )
+      const columnIndexes = currentSelection.map((col) =>
+        originalData.dataset.fields.findIndex((field) => field.reference === col)
       );
       const newRows = originalData.dataset.rows.map((row) =>
         columnIndexes.map((index) => row[index])
@@ -161,6 +163,10 @@ const VisualizationQueryComponent = () => {
     });
     setShowFilters(true);
   };
+  const cancelFilterColumn = () => {
+    setCurrentSelection([...filterColumn]);
+  };
+
   const toggleRightPanel = (open) => (event) => {
     if (
       event.type === "keydown" &&
@@ -204,16 +210,33 @@ const VisualizationQueryComponent = () => {
           <div style={{ height: "95px" }} className="filter-dropdowns">
             {!isLoading && isQueryExecutedSuccessfully && (
               <Box sx={{ width: "100%" }}>
-                <Dropdown
-                  labelId="filter-column"
-                  id="filter-column"
-                  value={filterColumn}
-                  label="Filter column"
-                  onChange={handleFilterColumn}
-                  options={updatedColumns.elements}
-                  multiple
-                  checkbox
-                />
+
+                <FormControl sx={{ minWidth: 200, m: 1 }}>
+                  <InputLabel id="filter-column">Select column</InputLabel>
+                  <Select
+                    labelId="filter-column"
+                    id="filter-column"
+                    value={currentSelection}
+                    label="Select column"
+                    multiple
+                    onChange={handleFilterColumn}
+                    input={<OutlinedInput label="Select column" />}
+                    renderValue={(selected) => selected.join(', ')}
+                  >
+                    {
+                      updatedColumns.elements.map((option, index) => (
+                        <MenuItem key={index} value={option.element.name} >
+                          <Checkbox checked={currentSelection.includes(option.element.name)} />
+                          <ListItemText primary={option.element.name} />
+                        </MenuItem>
+                      ))
+                    }
+                    {<div className='apply-btn-wrapper'>
+                      <button className='btn' onClick={applyFilterColumn}>Apply</button>
+                      <button className='btn' onClick={cancelFilterColumn}>Cancel</button>
+                    </div>}
+                  </Select>
+                </FormControl>
                 <Button
                   variant="contained"
                   color="primary"
@@ -233,7 +256,13 @@ const VisualizationQueryComponent = () => {
                     onRemoveVariable2={removeSingleFilter}
                   />
                 )}
-                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+
+                <TabularReport
+                  fields={queryResults.dataset.fields}
+                  rows={queryResults.dataset.rows}
+                  dataBycolumn={dataBycolumn}
+                />
+                {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                   <Tabs
                     value={tabValue}
                     onChange={handleChange}
@@ -249,7 +278,6 @@ const VisualizationQueryComponent = () => {
                   index={0}
                   style={{ padding: "0" }}
                 >
-                  {/* <LinearRegression fields={queryResults.dataset.fields} rows={queryResults.dataset.rows} dataBycolumn={dataBycolumn} /> */}
                   <TabularReport
                     fields={queryResults.dataset.fields}
                     rows={queryResults.dataset.rows}
@@ -261,11 +289,10 @@ const VisualizationQueryComponent = () => {
                   index={1}
                   style={{ padding: "0" }}
                 >
-                  {/* <Clustering fields={queryResults.dataset.fields} rows={queryResults.dataset.rows} stringFieldIndexes={stringFieldIndexes} /> */}
                 </CustomTabPanel>
                 <CustomTabPanel value={tabValue} index={2}>
                   <Eda dataset={queryResults.dataset} />
-                </CustomTabPanel>
+                </CustomTabPanel> */}
               </Box>
             )}
           </div>
