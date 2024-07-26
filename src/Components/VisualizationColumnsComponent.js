@@ -117,7 +117,7 @@ function VisualizationColumnsComponent() {
   const onPredict = () => {
     if (updatedColumns.elements) {
       const fields = updatedColumns.elements.map(({ element }) => {
-        return { field: element.name };
+        return { field: element.name};
       });
       const query = {
         query: {
