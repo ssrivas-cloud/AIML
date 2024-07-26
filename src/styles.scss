@@ -36,6 +36,8 @@ button {
   &.btn {
     background-color: #0076ad !important;
     color: #ffffff !important;
+    box-shadow: none;
+
     &.adv-filter {
       margin: 8px;
       background-color: #ffffff !important;
@@ -43,6 +45,12 @@ button {
       border: 1px solid !important;
       font-weight: bold;
       // font-size: 16px;
+    }
+    &.anomaly-btn{
+      background-color: #ffffff !important;
+      color:#786200 !important;
+      border: 1px solid #786200 !important;
+      font-weight: bold;
     }
   }
 
@@ -65,7 +73,7 @@ thead {
 
 tr {
   td {
-    background-color: #ffffff !important;
+    // background-color: #ffffff !important;
   }
 }
 
