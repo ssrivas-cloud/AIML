@@ -27,7 +27,6 @@ function App() {
     dispatch(setFieldsOfSelectedVisualization(fields));
     // setFieldsOfSelectedVisualization(fields);
   };
-  console.log(fieldsOfSelectedVisualization)
 
   return (
     <>
