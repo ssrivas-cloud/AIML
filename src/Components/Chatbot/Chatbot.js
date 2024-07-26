@@ -16,7 +16,13 @@ const Chatbot = ({ setChatOpen }) => {
 
   const handleAskQuestions = () => {
     const newQuestion = { question: question.replace(/^[ \t]+|[ \t]+$/g, "") };
-    setQuestionsAnswers((previous) => [...previous, newQuestion]);
+    setQuestionsAnswers((previous) => {
+      if (previous.length) {
+        return [...previous, newQuestion]; // Return updated array with new question added
+      } else {
+        return [newQuestion]; // Return new array with just the new question
+      }
+    });
     fetchBackendDataFromApi("POST", "/post-question/", {
       data,
       question: question,
