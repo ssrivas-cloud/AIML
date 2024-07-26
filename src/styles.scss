@@ -134,3 +134,30 @@ Table {
 .filter-dropdowns {
   margin-left: 6px;
 }
+
+.filter-column-dropdown{
+  ul{
+    padding-bottom: 0;
+  }
+}
+.apply-btn-wrapper{
+  button {
+    margin:0;
+    width: 50%;
+    border-radius: 0;
+  }
+  button:first-child {
+    border-bottom-left-radius: 4px;
+  }
+  button:last-child {
+    border-bottom-right-radius: 4px;
+    background-color: #ffffff !important;
+    color: #0076ad !important;
+    border: 1px solid #0076ad;
+    font-weight: bold;
+  }
+}
+
+.css-6hp17o-MuiList-root-MuiMenu-list{
+  padding-bottom: 0 !important;
+}

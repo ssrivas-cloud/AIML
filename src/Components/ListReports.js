@@ -95,7 +95,7 @@ const ListReports = () => {
 
   return (
     <>
-      <h1>AI/ML</h1>
+      <h1>Jaspersoft AI explorer</h1>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error}</p>}
       <FormControl fullWidth>
