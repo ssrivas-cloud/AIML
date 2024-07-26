@@ -18,9 +18,9 @@ const Chatbot = () => {
     const newQuestion = { question: question.replace(/^[ \t]+|[ \t]+$/g, "") };
     setQuestionsAnswers((previous) => {
       if (previous.length) {
-        return [...previous, newQuestion];
+        return [...previous, newQuestion]; // Return updated array with new question added
       } else {
-        return [newQuestion];
+        return [newQuestion]; // Return new array with just the new question
       }
     });
     fetchBackendDataFromApi("POST", "/post-question/", {
