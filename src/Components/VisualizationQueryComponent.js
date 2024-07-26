@@ -29,7 +29,7 @@ const VisualizationQueryComponent = () => {
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentSelection, setCurrentSelection] = useState([]);
-
+  const [edaData, setEdaData] = useState([]);
   const selectedVisualization = useSelector(
     (state) => state.visualization.selectedVisualization
   );
@@ -42,7 +42,126 @@ const VisualizationQueryComponent = () => {
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
   };
-
+  const rawData = `{
+    "description": {
+        "totalsales": {
+            "min": 1500.11,
+            "max": 82248.42,
+            "mean": 25626.93,
+            "std": 24345.97,
+            "CoV": 0.9500151602952972,
+            "skewness": 0.9419126558254409,
+            "kurtosis": -0.2733910610687649
+        },
+        "femalesales": {
+            "min": 655.55,
+            "max": 41069.39,
+            "mean": 12728.54,
+            "std": 12033.49,
+            "CoV": 0.9453940188565296,
+            "skewness": 0.9452071329960905,
+            "kurtosis": -0.23562620455397232
+        },
+        "malesales": {
+            "min": 844.56,
+            "max": 41179.03,
+            "mean": 12898.39,
+            "std": 12317.2,
+            "CoV": 0.954940836275107,
+            "skewness": 0.9386902696152647,
+            "kurtosis": -0.3079468797642151
+        }
+    },
+    "description_with_outliers": {
+        "totalsales": {
+            "min": -386870.41,
+            "max": 565238.13,
+            "mean": 48040.67,
+            "std": 166773.89,
+            "CoV": 3.471514628341921,
+            "skewness": 1.0458034272980499,
+            "kurtosis": 4.69730985486024
+        },
+        "femalesales": {
+            "min": 655.55,
+            "max": 280226.21,
+            "mean": 24367.5,
+            "std": 56911.99,
+            "CoV": 2.3355698547058807,
+            "skewness": 4.197142417608651,
+            "kurtosis": 16.422419613950428
+        },
+        "malesales": {
+            "min": 844.56,
+            "max": 285011.92,
+            "mean": 24783.65,
+            "std": 57904.97,
+            "CoV": 2.336418711262063,
+            "skewness": 4.192140142176316,
+            "kurtosis": 16.39435286124076
+        }
+    },
+    "analysis": {
+        "totalsales": [
+            "totalsales has a mean of 25626.93, with a standard deviation of 24345.97",
+            "The CoV for totalsales is 0.95, indicating substantial variability",
+            "The Skewness for totalsales is 0.94, indicating moderately positively skewed",
+            "The Kurtosis for totalsales is -0.27, indicating Moderately platykurtic (flatter distribution)"
+        ],
+        "femalesales": [
+            "femalesales has a mean of 12728.54, with a standard deviation of 12033.49",
+            "The CoV for femalesales is 0.95, indicating substantial variability",
+            "The Skewness for femalesales is 0.95, indicating moderately positively skewed",
+            "The Kurtosis for femalesales is -0.24, indicating Moderately platykurtic (flatter distribution)"
+        ],
+        "malesales": [
+            "malesales has a mean of 12898.39, with a standard deviation of 12317.2",
+            "The CoV for malesales is 0.95, indicating substantial variability",
+            "The Skewness for malesales is 0.94, indicating moderately positively skewed",
+            "The Kurtosis for malesales is -0.31, indicating Moderately platykurtic (flatter distribution)"
+        ]
+    },
+    "anomaly": {
+        "totalsales": [
+            {
+                "productdep": "All",
+                "totalsales": 565238.13,
+                "femalesales": 280226.21,
+                "malesales": 285011.92
+            },
+            {
+                "productdep": "Alcoholic Beverages",
+                "totalsales": 414029.08,
+                "femalesales": 7047.14,
+                "malesales": 6981.94
+            },
+            {
+                "productdep": "Baking Goods",
+                "totalsales": -386870.41,
+                "femalesales": 18608.22,
+                "malesales": 20062.19
+            }
+        ],
+        "femalesales": [
+            {
+                "productdep": "All",
+                "totalsales": 565238.13,
+                "femalesales": 280226.21,
+                "malesales": 285011.92
+            }
+        ],
+        "malesales": [
+            {
+                "productdep": "All",
+                "totalsales": 565238.13,
+                "femalesales": 280226.21,
+                "malesales": 285011.92
+            }
+        ]
+    }
+}`;
+const parsedData  = JSON.parse(rawData)
+const anomalies = parsedData.anomaly;
   // const tabs = ['Linear regression', 'Cluster', 'Analysis'];
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
@@ -55,8 +174,8 @@ const VisualizationQueryComponent = () => {
     return reference.replace(/ /g, "");
   };
   useEffect(() => {
-    const executeQuery = () => {
-      return axios({
+    const executeQuery = async () => {
+      const { data } = await axios({
         url: "/jasperserver-pro/rest_v2/queryExecutions",
         method: "post",
         headers: {
@@ -77,9 +196,34 @@ const VisualizationQueryComponent = () => {
               },
             },
           },
-      }).then(({ data }) => data);
+      });
+      return data;
     };
-
+    const sendDataToEDA = () => {
+      // axios({
+      //   url: 'http://10.97.103.197:8000/eda/',
+      //   method: 'post',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Accept': 'application/json'
+      //   },
+      //   data: JSON.stringify({
+      //     fields: queryResults?.dataset?.fields?.map(field => field.reference),
+      //     rows: queryResults?.dataset?.rows
+      //   })
+      // }).then(({ data }) => {
+      //     if(data.Response.Message){
+      //       setEdaData(data.Response.Message)
+      //     } else {
+      //       setEdaData(JSON.parse(data.Response))
+      //     }
+  
+      // }).catch(e => {
+      //     console.log(e)
+      // });
+      // const parsedData = JSON.parse(rawData.Response);
+      // setEdaData(rawData.Response);
+    }
     setIsLoading(true);
     executeQuery()
       .then((response) => {
@@ -90,6 +234,7 @@ const VisualizationQueryComponent = () => {
           setIsQueryExecutedSuccessfully(true);
           setQueryResults(response);
           setOriginalData(response);
+          
         }
         const getStringColumns = response.dataset.fields.reduce(
           (acc, field, index) => {
@@ -224,10 +369,10 @@ const VisualizationQueryComponent = () => {
                     renderValue={(selected) => selected.join(', ')}
                   >
                     {
-                      updatedColumns.elements.map((option, index) => (
-                        <MenuItem key={index} value={option.element.name} >
-                          <Checkbox checked={currentSelection.includes(option.element.name)} />
-                          <ListItemText primary={option.element.name} />
+                      queryResults.dataset.fields.map((option, index) => (
+                        <MenuItem key={index} value={option.reference} >
+                          <Checkbox checked={currentSelection.includes(option.reference)} />
+                          <ListItemText primary={option.reference} />
                         </MenuItem>
                       ))
                     }
@@ -245,6 +390,16 @@ const VisualizationQueryComponent = () => {
                 >
                   Advanced Filter
                 </Button>
+                { Object.keys(anomalies).length > 0 && <Button
+                  variant="contained"
+                  color="primary"
+                  className="btn anomaly-btn"
+                  onClick={toggleRightPanel(true)}
+                >
+                  View all anomalies ({ Object.keys(anomalies).length})
+                </Button>
+                }
+              
                 <RightPanel
                   onOpen={rightPanelOpen}
                   handleEvent={toggleRightPanel(false)}
@@ -261,6 +416,7 @@ const VisualizationQueryComponent = () => {
                   fields={queryResults.dataset.fields}
                   rows={queryResults.dataset.rows}
                   dataBycolumn={dataBycolumn}
+                  anomalies = {anomalies}
                 />
                 {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                   <Tabs
