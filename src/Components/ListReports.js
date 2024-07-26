@@ -76,6 +76,8 @@ import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchReportList } from "../Features/reportListSlice";
 import { setSelectedVisualization } from "../Features/visualizationSlice";
+import { setChatOpen } from "../Features/chatOpenSlice";
+import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 
 const ListReports = () => {
   const dispatch = useDispatch();
@@ -91,8 +93,9 @@ const ListReports = () => {
 
   const handleChange = (event) => {
     dispatch(setSelectedVisualization(event.target.value));
+    fetchBackendDataFromApi("DELETE", "/delete-questions-answers/");
+    dispatch(setChatOpen(false));
   };
-
   return (
     <>
       <h1>Jaspersoft AI explorer</h1>
