@@ -39,7 +39,6 @@
 //       return request.data;
 //     };
 
-
 //     fetchReportList().then(({ resourceLookup }) =>
 //       setReportList(filterVisualizationsOnly(resourceLookup)))
 //       .catch(e => console.error(e));
@@ -72,16 +71,20 @@
 // }
 
 // export default ListReports;
-import React, { useEffect } from 'react';
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchReportList } from '../Features/reportListSlice';
-import { setSelectedVisualization } from '../Features/visualizationSlice';
+import React, { useEffect } from "react";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchReportList } from "../Features/reportListSlice";
+import { setSelectedVisualization } from "../Features/visualizationSlice";
 
 const ListReports = () => {
   const dispatch = useDispatch();
-  const { reportList, loading, error } = useSelector((state) => state.reportList);
-  const selectedVisualization = useSelector((state) => state.visualization.selectedVisualization);
+  const { reportList, loading, error } = useSelector(
+    (state) => state.reportList
+  );
+  const selectedVisualization = useSelector(
+    (state) => state.visualization.selectedVisualization
+  );
   useEffect(() => {
     dispatch(fetchReportList());
   }, [dispatch]);

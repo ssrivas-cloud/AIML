@@ -52,28 +52,33 @@ const MessageList = ({ questionsAnswers }) => {
           </Typography>
         </Box>
       </ListItem>
-      {questionsAnswers?.map((qa, index) => (
-        <Box key={index}>
-          {qa.question ? (
-            <UserMessage
-              question={qa.question}
-              questionsAnswers={questionsAnswers}
-              index={index}
-              qa={qa}
-            />
-          ) : (
-            ""
-          )}
-          {qa.answer?.answer && (
-            <BotMessage
-              answer={qa.answer.answer}
-              questionsAnswers={questionsAnswers}
-              index={index}
-            />
-          )}
-        </Box>
-      ))}
-      <div ref={messagesEndRef} />
+
+      {questionsAnswers && questionsAnswers.length > 0 && (
+        <>
+          {questionsAnswers.map((qa, index) => (
+            <Box key={index}>
+              {qa.question ? (
+                <UserMessage
+                  question={qa.question}
+                  questionsAnswers={questionsAnswers}
+                  index={index}
+                  qa={qa}
+                />
+              ) : (
+                ""
+              )}
+              {qa.answer?.answer && (
+                <BotMessage
+                  answer={qa.answer.answer}
+                  questionsAnswers={questionsAnswers}
+                  index={index}
+                />
+              )}
+            </Box>
+          ))}
+          <div ref={messagesEndRef} />
+        </>
+      )}
     </List>
     // </Box>
   );
