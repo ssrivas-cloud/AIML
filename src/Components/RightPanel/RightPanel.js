@@ -1,6 +1,7 @@
 import React from 'react';
 import { Drawer, Button } from '@mui/material';
-const RightPanel = ({onOpen, handleEvent}) => {
+import Eda from '../Eda/Eda';
+const RightPanel = ({ onOpen, handleEvent, content }) => {
     const handleClose = () => {
         handleEvent(false);
     };
@@ -16,6 +17,10 @@ const RightPanel = ({onOpen, handleEvent}) => {
                 onKeyDown={handleClose}
                 style={{ width: 900, padding: 20 }}
             >
+
+                {
+                    content == 'anomalies' ? <Eda/> : <></>
+                }
                 <Button
                     variant="contained"
                     color="primary"

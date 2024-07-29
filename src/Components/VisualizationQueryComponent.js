@@ -4,14 +4,10 @@
  */
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import Eda from "./Eda/Eda";
-import Dropdown from "../Utilities/Dropdown";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import { Drawer, Button, Box } from "@mui/material";
-import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Checkbox, ListItemText, FormHelperText } from '@mui/material';
+import { Button, Box } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Checkbox, ListItemText } from '@mui/material';
 
 import TabularReport from "../Components/TabularReport/TabularReport";
 import AppliedFilters from "../Utilities/AppliedFilters";
@@ -24,12 +20,14 @@ const VisualizationQueryComponent = () => {
     useState(false);
   const [stringFieldIndexes, setStringFieldIndexes] = useState([]);
   const [tabValue, setTabValue] = React.useState(0);
-  const [filterColumn, setFilterColumn] = useState([]);
   const [originalData, setOriginalData] = useState();
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentSelection, setCurrentSelection] = useState([]);
   const [edaData, setEdaData] = useState([]);
+  const [panelContent, setPanelContent] = useState('');
+  const [anomalies, setAnomalies] = useState({});
+  const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(false);
   const selectedVisualization = useSelector(
     (state) => state.visualization.selectedVisualization
   );
@@ -161,7 +159,7 @@ const VisualizationQueryComponent = () => {
     }
 }`;
 const parsedData  = JSON.parse(rawData)
-const anomalies = parsedData.anomaly;
+// const anomalies = parsedData.anomaly;
   // const tabs = ['Linear regression', 'Cluster', 'Analysis'];
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
@@ -173,6 +171,36 @@ const anomalies = parsedData.anomaly;
     }
     return reference.replace(/ /g, "");
   };
+  const sendDataToEDA = () => {
+    axios({
+      url: 'http://10.97.103.197:8000/eda/',
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      data: JSON.stringify({
+        fields: queryResults?.dataset?.fields?.map(field => field.reference),
+        rows: queryResults?.dataset?.rows
+      })
+    }).then(({ data }) => {
+        if(data.Response.Message){
+          setAnomalies(data.Response.Message)
+        } else {
+          setAnomalies(JSON.parse(data.Response))
+        }
+        setIsAnomalyLoaded(true)
+    }).catch(e => {
+        console.log(e)
+    });
+    // const parsedData = JSON.parse(rawData.Response);
+    // setEdaData(rawData.Response);
+  }
+  useEffect(() => {
+    if(queryResults){
+      sendDataToEDA();
+    }
+  }, [queryResults]);
   useEffect(() => {
     const executeQuery = async () => {
       const { data } = await axios({
@@ -199,31 +227,7 @@ const anomalies = parsedData.anomaly;
       });
       return data;
     };
-    const sendDataToEDA = () => {
-      // axios({
-      //   url: 'http://10.97.103.197:8000/eda/',
-      //   method: 'post',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Accept': 'application/json'
-      //   },
-      //   data: JSON.stringify({
-      //     fields: queryResults?.dataset?.fields?.map(field => field.reference),
-      //     rows: queryResults?.dataset?.rows
-      //   })
-      // }).then(({ data }) => {
-      //     if(data.Response.Message){
-      //       setEdaData(data.Response.Message)
-      //     } else {
-      //       setEdaData(JSON.parse(data.Response))
-      //     }
   
-      // }).catch(e => {
-      //     console.log(e)
-      // });
-      // const parsedData = JSON.parse(rawData.Response);
-      // setEdaData(rawData.Response);
-    }
     setIsLoading(true);
     executeQuery()
       .then((response) => {
@@ -234,7 +238,7 @@ const anomalies = parsedData.anomaly;
           setIsQueryExecutedSuccessfully(true);
           setQueryResults(response);
           setOriginalData(response);
-          
+        
         }
         const getStringColumns = response.dataset.fields.reduce(
           (acc, field, index) => {
@@ -290,7 +294,6 @@ const anomalies = parsedData.anomaly;
     setCurrentSelection(newSelection);
   };
   const applyFilterColumn = () => {
-    setFilterColumn(currentSelection);
     setQueryResults((prevState) => {
       const columnIndexes = currentSelection.map((col) =>
         originalData.dataset.fields.findIndex((field) => field.reference === col)
@@ -309,10 +312,10 @@ const anomalies = parsedData.anomaly;
     setShowFilters(true);
   };
   const cancelFilterColumn = () => {
-    setCurrentSelection([...filterColumn]);
+    setCurrentSelection([...currentSelection]);
   };
 
-  const toggleRightPanel = (open) => (event) => {
+  const toggleRightPanel = (open, content = null ) => (event) => {
     if (
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
@@ -320,15 +323,17 @@ const anomalies = parsedData.anomaly;
       return;
     }
     setRightPanelOpen(open);
+    setPanelContent(content);
+
   };
   const handleReset = () => {
-    setFilterColumn([]);
+    setCurrentSelection([]);
     setQueryResults(originalData);
     setShowFilters(false);
   };
   const removeSingleFilter = (index) => {
-    const newFilterColumn = filterColumn.filter((_, i) => i !== index);
-    setFilterColumn(newFilterColumn);
+    const newFilterColumn = currentSelection.filter((_, i) => i !== index);
+    setCurrentSelection(newFilterColumn);
     setQueryResults((prevState) => {
       const columnIndexes = newFilterColumn.map((col) =>
         originalData.dataset.fields.findIndex(
@@ -353,7 +358,7 @@ const anomalies = parsedData.anomaly;
       <div className="row h-100">
         <div className="col h-100">
           <div style={{ height: "95px" }} className="filter-dropdowns">
-            {!isLoading && isQueryExecutedSuccessfully && (
+            {!isLoading && isAnomalyLoaded && isQueryExecutedSuccessfully && (
               <Box sx={{ width: "100%" }}>
 
                 <FormControl sx={{ minWidth: 200, m: 1 }}>
@@ -369,7 +374,7 @@ const anomalies = parsedData.anomaly;
                     renderValue={(selected) => selected.join(', ')}
                   >
                     {
-                      queryResults.dataset.fields.map((option, index) => (
+                      originalData.dataset.fields.map((option, index) => (
                         <MenuItem key={index} value={option.reference} >
                           <Checkbox checked={currentSelection.includes(option.reference)} />
                           <ListItemText primary={option.reference} />
@@ -386,37 +391,38 @@ const anomalies = parsedData.anomaly;
                   variant="contained"
                   color="primary"
                   className="btn adv-filter"
-                  onClick={toggleRightPanel(true)}
+                  onClick={toggleRightPanel(true, "advFilter")}
                 >
                   Advanced Filter
                 </Button>
-                { Object.keys(anomalies).length > 0 && <Button
+                { isAnomalyLoaded && <Button
                   variant="contained"
                   color="primary"
                   className="btn anomaly-btn"
-                  onClick={toggleRightPanel(true)}
+                  onClick={toggleRightPanel(true, "anomalies")}
                 >
-                  View all anomalies ({ Object.keys(anomalies).length})
+                  View all anomalies ({ Object.keys(anomalies.anomaly).length})
                 </Button>
                 }
               
                 <RightPanel
                   onOpen={rightPanelOpen}
                   handleEvent={toggleRightPanel(false)}
+                  content={panelContent}
                 />
                 {showFilters && (
                   <AppliedFilters
-                    variable2={filterColumn}
+                    variable2={currentSelection}
                     onReset={handleReset}
                     onRemoveVariable2={removeSingleFilter}
                   />
                 )}
 
-                <TabularReport
+             <TabularReport
                   fields={queryResults.dataset.fields}
                   rows={queryResults.dataset.rows}
                   dataBycolumn={dataBycolumn}
-                  anomalies = {anomalies}
+                  anomalies = {anomalies.anomaly}
                 />
                 {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                   <Tabs
@@ -452,7 +458,7 @@ const anomalies = parsedData.anomaly;
               </Box>
             )}
           </div>
-          {isLoading && <h2 className="text-center">Loading...</h2>}
+          {!isAnomalyLoaded && <h2 className="text-center">Loading...</h2>}
           {!isLoading && !isQueryExecutedSuccessfully && (
             <h4 className="text-center">Query does not return any data.</h4>
           )}
