@@ -11,11 +11,22 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { Drawer, Button, Box } from "@mui/material";
-import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Checkbox, ListItemText, FormHelperText } from '@mui/material';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput,
+  Checkbox,
+  ListItemText,
+  FormHelperText,
+} from "@mui/material";
 
+import { setChatOpen } from "../Features/chatOpenSlice";
 import TabularReport from "../Components/TabularReport/TabularReport";
 import AppliedFilters from "../Utilities/AppliedFilters";
 import RightPanel from "./RightPanel/RightPanel";
+import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 
 const VisualizationQueryComponent = () => {
   const [queryResults, setQueryResults] = useState(null);
@@ -30,6 +41,8 @@ const VisualizationQueryComponent = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [currentSelection, setCurrentSelection] = useState([]);
   const [edaData, setEdaData] = useState([]);
+  const dispatch = useDispatch();
+
   const selectedVisualization = useSelector(
     (state) => state.visualization.selectedVisualization
   );
@@ -160,8 +173,8 @@ const VisualizationQueryComponent = () => {
         ]
     }
 }`;
-const parsedData  = JSON.parse(rawData)
-const anomalies = parsedData.anomaly;
+  const parsedData = JSON.parse(rawData);
+  const anomalies = parsedData.anomaly;
   // const tabs = ['Linear regression', 'Cluster', 'Analysis'];
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
@@ -185,17 +198,17 @@ const anomalies = parsedData.anomaly;
         data: fieldsOfSelectedVisualization.query
           ? fieldsOfSelectedVisualization
           : {
-            query: {
-              select: {
-                fieldsOfSelectedVisualization,
+              query: {
+                select: {
+                  fieldsOfSelectedVisualization,
+                },
+              },
+              dataSource: {
+                reference: {
+                  uri: selectedVisualization.uri,
+                },
               },
             },
-            dataSource: {
-              reference: {
-                uri: selectedVisualization.uri,
-              },
-            },
-          },
       });
       return data;
     };
@@ -217,13 +230,12 @@ const anomalies = parsedData.anomaly;
       //     } else {
       //       setEdaData(JSON.parse(data.Response))
       //     }
-  
       // }).catch(e => {
       //     console.log(e)
       // });
       // const parsedData = JSON.parse(rawData.Response);
       // setEdaData(rawData.Response);
-    }
+    };
     setIsLoading(true);
     executeQuery()
       .then((response) => {
@@ -234,7 +246,6 @@ const anomalies = parsedData.anomaly;
           setIsQueryExecutedSuccessfully(true);
           setQueryResults(response);
           setOriginalData(response);
-          
         }
         const getStringColumns = response.dataset.fields.reduce(
           (acc, field, index) => {
@@ -293,7 +304,9 @@ const anomalies = parsedData.anomaly;
     setFilterColumn(currentSelection);
     setQueryResults((prevState) => {
       const columnIndexes = currentSelection.map((col) =>
-        originalData.dataset.fields.findIndex((field) => field.reference === col)
+        originalData.dataset.fields.findIndex(
+          (field) => field.reference === col
+        )
       );
       const newRows = originalData.dataset.rows.map((row) =>
         columnIndexes.map((index) => row[index])
@@ -307,6 +320,15 @@ const anomalies = parsedData.anomaly;
       };
     });
     setShowFilters(true);
+
+    // send Delete request to the backend and handle the response
+    fetchBackendDataFromApi("DELETE", "/delete-questions-answers/")
+      .then(() => {
+        dispatch(setChatOpen(false));
+      })
+      .catch((error) => {
+        console.error("Error deleting questions and answers:", error);
+      });
   };
   const cancelFilterColumn = () => {
     setCurrentSelection([...filterColumn]);
@@ -355,7 +377,6 @@ const anomalies = parsedData.anomaly;
           <div style={{ height: "95px" }} className="filter-dropdowns">
             {!isLoading && isQueryExecutedSuccessfully && (
               <Box sx={{ width: "100%" }}>
-
                 <FormControl sx={{ minWidth: 200, m: 1 }}>
                   <InputLabel id="filter-column">Select column</InputLabel>
                   <Select
@@ -366,20 +387,26 @@ const anomalies = parsedData.anomaly;
                     multiple
                     onChange={handleFilterColumn}
                     input={<OutlinedInput label="Select column" />}
-                    renderValue={(selected) => selected.join(', ')}
+                    renderValue={(selected) => selected.join(", ")}
                   >
+                    {queryResults.dataset.fields.map((option, index) => (
+                      <MenuItem key={index} value={option.reference}>
+                        <Checkbox
+                          checked={currentSelection.includes(option.reference)}
+                        />
+                        <ListItemText primary={option.reference} />
+                      </MenuItem>
+                    ))}
                     {
-                      queryResults.dataset.fields.map((option, index) => (
-                        <MenuItem key={index} value={option.reference} >
-                          <Checkbox checked={currentSelection.includes(option.reference)} />
-                          <ListItemText primary={option.reference} />
-                        </MenuItem>
-                      ))
+                      <div className="apply-btn-wrapper">
+                        <button className="btn" onClick={applyFilterColumn}>
+                          Apply
+                        </button>
+                        <button className="btn" onClick={cancelFilterColumn}>
+                          Cancel
+                        </button>
+                      </div>
                     }
-                    {<div className='apply-btn-wrapper'>
-                      <button className='btn' onClick={applyFilterColumn}>Apply</button>
-                      <button className='btn' onClick={cancelFilterColumn}>Cancel</button>
-                    </div>}
                   </Select>
                 </FormControl>
                 <Button
@@ -390,16 +417,17 @@ const anomalies = parsedData.anomaly;
                 >
                   Advanced Filter
                 </Button>
-                { Object.keys(anomalies).length > 0 && <Button
-                  variant="contained"
-                  color="primary"
-                  className="btn anomaly-btn"
-                  onClick={toggleRightPanel(true)}
-                >
-                  View all anomalies ({ Object.keys(anomalies).length})
-                </Button>
-                }
-              
+                {Object.keys(anomalies).length > 0 && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className="btn anomaly-btn"
+                    onClick={toggleRightPanel(true)}
+                  >
+                    View all anomalies ({Object.keys(anomalies).length})
+                  </Button>
+                )}
+
                 <RightPanel
                   onOpen={rightPanelOpen}
                   handleEvent={toggleRightPanel(false)}
@@ -416,7 +444,7 @@ const anomalies = parsedData.anomaly;
                   fields={queryResults.dataset.fields}
                   rows={queryResults.dataset.rows}
                   dataBycolumn={dataBycolumn}
-                  anomalies = {anomalies}
+                  anomalies={anomalies}
                 />
                 {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                   <Tabs

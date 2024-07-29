@@ -1,20 +1,20 @@
 import React from "react";
 import { ListItem, Box, Typography } from "@mui/material";
 
-const UserMessage = (props) => {
+const MessageBox = (props) => {
   return (
     <>
       <ListItem
         sx={{
-          justifyContent: "flex-end",
-          mb: 2,
+          justifyContent: props.isUser ? "flex-end" : "flex-start",
+          mb: props.index !== props.messagesLength ? 2 : 0,
           p: 0,
         }}
       >
         <Box
           sx={{
             maxWidth: "70%",
-            backgroundColor: "#0076AD",
+            backgroundColor: props.isUser ? "#0076AD" : "#ffffff",
             borderRadius: "8px",
             wordBreak: "break-word",
             p: "8px",
@@ -24,12 +24,12 @@ const UserMessage = (props) => {
             sx={{
               textAlign: "left",
               whiteSpace: "pre-wrap",
-              color: "#ffffff",
+              color: props.isUser ? "#ffffff" : "",
               p: 0,
               fontSize: "13px",
             }}
           >
-            {props.question}
+            {props.content}
           </Typography>
         </Box>
       </ListItem>
@@ -37,4 +37,4 @@ const UserMessage = (props) => {
   );
 };
 
-export default UserMessage;
+export default MessageBox;
