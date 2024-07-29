@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { Typography, Box, List, ListItem } from "@mui/material";
-import BotMessage from "./BotMessage";
-import UserMessage from "./UserMessage";
+import MessageBox from "./MessageBox";
 
 const MessageList = ({ questionsAnswers }) => {
+  const messagesLength = questionsAnswers.length - 1;
   const messagesEndRef = useRef(null);
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -11,7 +11,6 @@ const MessageList = ({ questionsAnswers }) => {
     }
   }, [questionsAnswers]);
   return (
-    // <Box sx={{ overflow: "auto" }}>
     <List
       sx={{
         flex: 1,
@@ -23,56 +22,74 @@ const MessageList = ({ questionsAnswers }) => {
         flexDirection: "column",
       }}
     >
-      <ListItem
-        sx={{
-          justifyContent: "flex-start",
-          mb: 2,
-          p: 0,
-        }}
-      >
-        <Box
-          sx={{
-            maxWidth: "70%",
-            backgroundColor: "#ffffff",
-            borderRadius: "8px",
-            wordBreak: "break-word",
-            p: "8px",
-          }}
-        >
-          <Typography
-            sx={{
-              textAlign: "left",
-              whiteSpace: "pre-wrap",
-              p: 0,
-              fontSize: "13px",
-            }}
-          >
-            Hello there! 👋 It’s nice to meet you! Please ask me anything about
-            Bangalore real estate
-          </Typography>
-        </Box>
-      </ListItem>
+      <MessageBox
+        content="Hello there! 👋 It’s nice to meet you! Please ask me anything about
+            Bangalore real estate"
+        isUser={false}
+        index={-1}
+        messagesLength={messagesLength}
+      />
 
       {questionsAnswers && questionsAnswers.length > 0 && (
         <>
           {questionsAnswers.map((qa, index) => (
             <Box key={index}>
-              {qa.question ? (
-                <UserMessage
-                  question={qa.question}
-                  questionsAnswers={questionsAnswers}
-                  index={index}
-                  qa={qa}
-                />
-              ) : (
-                ""
+              {/* Check if it's not the last message */}
+              {index !== messagesLength && (
+                <>
+                  {qa.question && qa.answer?.answer ? (
+                    <>
+                      <MessageBox
+                        isUser={true}
+                        content={qa.question}
+                        index={index}
+                        messagesLength={messagesLength}
+                      />
+                      <MessageBox
+                        isUser={false}
+                        content={qa.answer.answer}
+                        index={index}
+                        messagesLength={messagesLength}
+                      />
+                    </>
+                  ) : (
+                    <MessageBox
+                      isUser={true}
+                      content={qa.question}
+                      index={index}
+                      messagesLength={messagesLength}
+                    />
+                  )}
+                </>
               )}
-              {qa.answer?.answer && (
-                <BotMessage
-                  answer={qa.answer.answer}
-                  questionsAnswers={questionsAnswers}
-                  index={index}
-                />
+
+              {/* For the last message, always render */}
+              {index === messagesLength && (
+                <>
+                  {qa.question && qa.answer?.answer ? (
+                    <>
+                      <MessageBox
+                        isUser={true}
+                        content={qa.question}
+                        index={index + 1} // Adjusted index for the last message
+                        messagesLength={messagesLength}
+                      />
+                      <MessageBox
+                        isUser={false}
+                        content={qa.answer.answer}
+                        index={index}
+                        messagesLength={messagesLength}
+                      />
+                    </>
+                  ) : (
+                    <MessageBox
+                      isUser={true}
+                      content={qa.question}
+                      index={index}
+                      messagesLength={messagesLength}
+                    />
+                  )}
+                </>
               )}
             </Box>
           ))}
@@ -80,7 +97,6 @@ const MessageList = ({ questionsAnswers }) => {
         </>
       )}
     </List>
-    // </Box>
   );
 };
 

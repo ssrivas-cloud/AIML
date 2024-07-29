@@ -6,38 +6,39 @@ const headers = {
   Accept: "application/json",
 };
 
-export const fetchBackendDataFromApi = async (method, url, params) => {
-  if (method === "POST") {
-    try {
-      const { data } = await axios.post(BASE_URL + url, params, {
-        headers: headers,
+export const fetchBackendDataFromApi = async (
+  method,
+  url,
+  params,
+  cancelToken
+) => {
+  const config = {
+    headers: headers,
+    cancelToken: cancelToken,
+  };
+
+  try {
+    let response;
+    if (method === "POST") {
+      response = await axios.post(BASE_URL + url, params, config);
+    } else if (method === "DELETE") {
+      response = await axios.delete(BASE_URL + url, {
+        ...config,
+        data: params,
       });
-      return data;
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
-  } else if (method === "DELETE") {
-    try {
-      const { data } = await axios.delete(BASE_URL + url, params, {
-        headers: headers,
+    } else if (method === "GET") {
+      response = await axios.get(BASE_URL + url, {
+        ...config,
+        data: params,
       });
-      console.log(data);
-      return data;
-    } catch (error) {
-      console.log(error);
-      return error;
     }
-  } else {
-    try {
-      const { data } = await axios.get(BASE_URL + url, params, {
-        headers: headers,
-      });
-      console.log(data);
-      return data;
-    } catch (error) {
+    return response.data;
+  } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled", error.message);
+    } else {
       console.log(error);
-      return error;
     }
+    return error;
   }
 };

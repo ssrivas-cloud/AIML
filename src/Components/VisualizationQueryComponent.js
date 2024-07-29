@@ -320,8 +320,15 @@ const VisualizationQueryComponent = () => {
       };
     });
     setShowFilters(true);
-    fetchBackendDataFromApi("DELETE", "/delete-questions-answers/");
-    dispatch(setChatOpen(false));
+
+    // send Delete request to the backend and handle the response
+    fetchBackendDataFromApi("DELETE", "/delete-questions-answers/")
+      .then(() => {
+        dispatch(setChatOpen(false));
+      })
+      .catch((error) => {
+        console.error("Error deleting questions and answers:", error);
+      });
   };
   const cancelFilterColumn = () => {
     setCurrentSelection([...filterColumn]);

@@ -93,8 +93,15 @@ const ListReports = () => {
 
   const handleChange = (event) => {
     dispatch(setSelectedVisualization(event.target.value));
-    fetchBackendDataFromApi("DELETE", "/delete-questions-answers/");
-    dispatch(setChatOpen(false));
+
+    // send delete request to the backend and handle response
+    fetchBackendDataFromApi("DELETE", "/delete-questions-answers/")
+      .then(() => {
+        dispatch(setChatOpen(false));
+      })
+      .catch((error) => {
+        console.error("Error deleting questions and answers:", error);
+      });
   };
   return (
     <>
