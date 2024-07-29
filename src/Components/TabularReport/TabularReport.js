@@ -6,7 +6,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { setGlobalDataset } from "../../Features/globalDatasetSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setChatOpen } from "../../Features/chatOpenSlice";
 import {
   Table,
   TableBody,
@@ -32,11 +33,12 @@ const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
   const [regressionResult, setRegressionResult] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
   const anomalyValues = {};
   for (let key in anomalies) {
-      anomalyValues[key] = anomalies[key].map(anomaly => anomaly[key]);
+    anomalyValues[key] = anomalies[key].map((anomaly) => anomaly[key]);
   }
+
+  const { chatOpen } = useSelector((state) => state.chatOpen);
   const dispatch = useDispatch();
 
   // const numericFields = fields.filter((field) => field.type !== "string");
@@ -50,27 +52,29 @@ const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
   };
   const handleOpenDialog = () => {
     setOpenDialog(true);
-    setChatOpen(false);
+    dispatch(setChatOpen(false));
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
 
-  const handleChatBot = () => {
-    setChatOpen(true);
-  };
-
   const isAnomaly = (row) => {
     return row.some((cell, index) => {
-        const key = fields[index].reference;
-        return anomalyValues[key] && anomalyValues[key].includes(Number(cell) || cell.toString());
+      const key = fields[index].reference;
+      return (
+        anomalyValues[key] &&
+        anomalyValues[key].includes(Number(cell) || cell.toString())
+      );
     });
-};
-const isAnomalyCell = (cell, index) => {
-  const key = fields[index].reference;
-  return anomalyValues[key] && anomalyValues[key].includes(Number(cell) || cell.toString());
-};
+  };
+  const isAnomalyCell = (cell, index) => {
+    const key = fields[index].reference;
+    return (
+      anomalyValues[key] &&
+      anomalyValues[key].includes(Number(cell) || cell.toString())
+    );
+  };
   useEffect(() => {
     dispatch(
       setGlobalDataset({ "column Names": headerName, "data Rows": rows })
@@ -96,13 +100,26 @@ const isAnomalyCell = (cell, index) => {
             </TableHead>
             <TableBody>
               {rows.map((row, index) => {
-                  const isRowAnomaly = isAnomaly(row);
+                const isRowAnomaly = isAnomaly(row);
                 return (
-                  <TableRow key={index} >
+                  <TableRow key={index}>
                     {row.map((s, newIdx) => {
                       dataBycolumn[newIdx].push(s);
                       return (
-                        <TableCell key={newIdx * 9500} style={{ backgroundColor: isRowAnomaly ? '#FEFACC' : 'inherit', fontWeight: isAnomalyCell(s, newIdx) ? 'bold' : 'normal', color: isAnomalyCell(s, newIdx) ? '#7A1106' : '#61676B' }}>
+                        <TableCell
+                          key={newIdx * 9500}
+                          style={{
+                            backgroundColor: isRowAnomaly
+                              ? "#FEFACC"
+                              : "inherit",
+                            fontWeight: isAnomalyCell(s, newIdx)
+                              ? "bold"
+                              : "normal",
+                            color: isAnomalyCell(s, newIdx)
+                              ? "#7A1106"
+                              : "#61676B",
+                          }}
+                        >
                           {removeBlankSpaces(s)}
                         </TableCell>
                       );
@@ -114,11 +131,7 @@ const isAnomalyCell = (cell, index) => {
           </Table>
         </TableContainer>
 
-        {chatOpen ? (
-          <Chatbot setChatOpen={setChatOpen} chatOpen={chatOpen} />
-        ) : (
-          ""
-        )}
+        {chatOpen ? <Chatbot /> : ""}
 
         <div className="regression-btn">
           <button
@@ -130,7 +143,7 @@ const isAnomalyCell = (cell, index) => {
                 : ""
             }`}
             variant="contained"
-            onClick={handleChatBot}
+            onClick={() => dispatch(setChatOpen(true))}
           >
             Ask questions
           </button>
@@ -155,7 +168,8 @@ const isAnomalyCell = (cell, index) => {
         </DialogTitle>
 
         <p>
-        To run the regression analysis please select a dependent variable (The value which you want to be forecasted).
+          To run the regression analysis please select a dependent variable (The
+          value which you want to be forecasted).
         </p>
         <DialogContent>
           <RegressionAnalysisPopup numericFields={fields} />

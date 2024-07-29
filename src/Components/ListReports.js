@@ -39,7 +39,6 @@
 //       return request.data;
 //     };
 
-
 //     fetchReportList().then(({ resourceLookup }) =>
 //       setReportList(filterVisualizationsOnly(resourceLookup)))
 //       .catch(e => console.error(e));
@@ -72,24 +71,38 @@
 // }
 
 // export default ListReports;
-import React, { useEffect } from 'react';
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchReportList } from '../Features/reportListSlice';
-import { setSelectedVisualization } from '../Features/visualizationSlice';
+import React, { useEffect } from "react";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchReportList } from "../Features/reportListSlice";
+import { setSelectedVisualization } from "../Features/visualizationSlice";
+import { setChatOpen } from "../Features/chatOpenSlice";
+import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 
 const ListReports = () => {
   const dispatch = useDispatch();
-  const { reportList, loading, error } = useSelector((state) => state.reportList);
-  const selectedVisualization = useSelector((state) => state.visualization.selectedVisualization);
+  const { reportList, loading, error } = useSelector(
+    (state) => state.reportList
+  );
+  const selectedVisualization = useSelector(
+    (state) => state.visualization.selectedVisualization
+  );
   useEffect(() => {
     dispatch(fetchReportList());
   }, [dispatch]);
 
   const handleChange = (event) => {
     dispatch(setSelectedVisualization(event.target.value));
-  };
 
+    // send delete request to the backend and handle response
+    fetchBackendDataFromApi("DELETE", "/delete-questions-answers/")
+      .then(() => {
+        dispatch(setChatOpen(false));
+      })
+      .catch((error) => {
+        console.error("Error deleting questions and answers:", error);
+      });
+  };
   return (
     <>
       <h1>Jaspersoft AI explorer</h1>

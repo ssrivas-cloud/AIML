@@ -4,14 +4,16 @@
  */
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import { Button, Box } from "@mui/material";
 import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Checkbox, ListItemText } from '@mui/material';
 
+import { setChatOpen } from "../Features/chatOpenSlice";
 import TabularReport from "../Components/TabularReport/TabularReport";
 import AppliedFilters from "../Utilities/AppliedFilters";
 import RightPanel from "./RightPanel/RightPanel";
+import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 
 const VisualizationQueryComponent = () => {
   const [queryResults, setQueryResults] = useState(null);
@@ -28,6 +30,8 @@ const VisualizationQueryComponent = () => {
   const [panelContent, setPanelContent] = useState('');
   const [anomalies, setAnomalies] = useState({});
   const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(false);
+  const dispatch = useDispatch();
+
   const selectedVisualization = useSelector(
     (state) => state.visualization.selectedVisualization
   );
@@ -158,8 +162,8 @@ const VisualizationQueryComponent = () => {
         ]
     }
 }`;
-const parsedData  = JSON.parse(rawData)
-// const anomalies = parsedData.anomaly;
+  const parsedData = JSON.parse(rawData)
+  // const anomalies = parsedData;
   // const tabs = ['Linear regression', 'Cluster', 'Analysis'];
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
@@ -184,20 +188,18 @@ const parsedData  = JSON.parse(rawData)
         rows: queryResults?.dataset?.rows
       })
     }).then(({ data }) => {
-        if(data.Response.Message){
-          setAnomalies(data.Response.Message)
-        } else {
-          setAnomalies(JSON.parse(data.Response))
-        }
-        setIsAnomalyLoaded(true)
+      if (data.Response.Message) {
+        setAnomalies(data.Response.Message)
+      } else {
+        setAnomalies(JSON.parse(data.Response))
+      }
+      setIsAnomalyLoaded(true)
     }).catch(e => {
-        console.log(e)
-    });
-    // const parsedData = JSON.parse(rawData.Response);
-    // setEdaData(rawData.Response);
+      console.log(e)
+    });;
   }
   useEffect(() => {
-    if(queryResults){
+    if (queryResults) {
       sendDataToEDA();
     }
   }, [queryResults]);
@@ -227,7 +229,7 @@ const parsedData  = JSON.parse(rawData)
       });
       return data;
     };
-  
+
     setIsLoading(true);
     executeQuery()
       .then((response) => {
@@ -238,7 +240,7 @@ const parsedData  = JSON.parse(rawData)
           setIsQueryExecutedSuccessfully(true);
           setQueryResults(response);
           setOriginalData(response);
-        
+
         }
         const getStringColumns = response.dataset.fields.reduce(
           (acc, field, index) => {
@@ -296,7 +298,9 @@ const parsedData  = JSON.parse(rawData)
   const applyFilterColumn = () => {
     setQueryResults((prevState) => {
       const columnIndexes = currentSelection.map((col) =>
-        originalData.dataset.fields.findIndex((field) => field.reference === col)
+        originalData.dataset.fields.findIndex(
+          (field) => field.reference === col
+        )
       );
       const newRows = originalData.dataset.rows.map((row) =>
         columnIndexes.map((index) => row[index])
@@ -310,12 +314,21 @@ const parsedData  = JSON.parse(rawData)
       };
     });
     setShowFilters(true);
+
+    // send Delete request to the backend and handle the response
+    fetchBackendDataFromApi("DELETE", "/delete-questions-answers/")
+      .then(() => {
+        dispatch(setChatOpen(false));
+      })
+      .catch((error) => {
+        console.error("Error deleting questions and answers:", error);
+      });
   };
   const cancelFilterColumn = () => {
     setCurrentSelection([...currentSelection]);
   };
 
-  const toggleRightPanel = (open, content = null ) => (event) => {
+  const toggleRightPanel = (open, content = null) => (event) => {
     if (
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
@@ -360,7 +373,6 @@ const parsedData  = JSON.parse(rawData)
           <div style={{ height: "95px" }} className="filter-dropdowns">
             {!isLoading && isAnomalyLoaded && isQueryExecutedSuccessfully && (
               <Box sx={{ width: "100%" }}>
-
                 <FormControl sx={{ minWidth: 200, m: 1 }}>
                   <InputLabel id="filter-column">Select column</InputLabel>
                   <Select
@@ -371,8 +383,9 @@ const parsedData  = JSON.parse(rawData)
                     multiple
                     onChange={handleFilterColumn}
                     input={<OutlinedInput label="Select column" />}
-                    renderValue={(selected) => selected.join(', ')}
+                    renderValue={(selected) => selected.join(", ")}
                   >
+
                     {
                       originalData.dataset.fields.map((option, index) => (
                         <MenuItem key={index} value={option.reference} >
@@ -380,11 +393,16 @@ const parsedData  = JSON.parse(rawData)
                           <ListItemText primary={option.reference} />
                         </MenuItem>
                       ))
+
                     }
-                    {<div className='apply-btn-wrapper'>
-                      <button className='btn' onClick={applyFilterColumn}>Apply</button>
-                      <button className='btn' onClick={cancelFilterColumn}>Cancel</button>
-                    </div>}
+                    <div className="apply-btn-wrapper">
+                      <button className="btn" onClick={applyFilterColumn}>
+                        Apply
+                      </button>
+                      <button className="btn" onClick={cancelFilterColumn}>
+                        Cancel
+                      </button>
+                    </div>
                   </Select>
                 </FormControl>
                 <Button
@@ -395,19 +413,19 @@ const parsedData  = JSON.parse(rawData)
                 >
                   Advanced Filter
                 </Button>
-                { isAnomalyLoaded && <Button
+                {isAnomalyLoaded && <Button
                   variant="contained"
                   color="primary"
                   className="btn anomaly-btn"
                   onClick={toggleRightPanel(true, "anomalies")}
                 >
-                  View all anomalies ({ Object.keys(anomalies.anomaly).length})
+                  View all anomalies ({Object.keys(anomalies.anomaly).length})
                 </Button>
                 }
-              
+
                 <RightPanel
                   onOpen={rightPanelOpen}
-                  handleEvent={toggleRightPanel(false)}
+                  handleEvent={toggleRightPanel(false, "")}
                   content={panelContent}
                 />
                 {showFilters && (
@@ -418,11 +436,11 @@ const parsedData  = JSON.parse(rawData)
                   />
                 )}
 
-             <TabularReport
+                <TabularReport
                   fields={queryResults.dataset.fields}
                   rows={queryResults.dataset.rows}
                   dataBycolumn={dataBycolumn}
-                  anomalies = {anomalies.anomaly}
+                  anomalies={anomalies.anomaly}
                 />
                 {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                   <Tabs

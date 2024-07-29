@@ -1,42 +1,94 @@
+import axios from "axios";
+import React, { useState, useRef, useEffect } from "react";
+import { setChatOpen } from "../../Features/chatOpenSlice";
 import CloseIcon from "@mui/icons-material/Close";
+import StopIcon from "@mui/icons-material/Stop";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { ReactComponent as SendLogo } from "../../assets/SendCustom.svg";
 import { Typography, Box, TextField, Button, IconButton } from "@mui/material";
-import React, { useState, useRef, useEffect } from "react";
 import { fetchBackendDataFromApi } from "../../Utilities/backendApi";
 import { useDispatch, useSelector } from "react-redux";
 import MessageList from "./MessageList";
 
-const Chatbot = ({ setChatOpen }) => {
+const Chatbot = () => {
   const [question, setQuestion] = useState("");
+  const [sending, setSending] = useState(false);
   const [questionsAnswers, setQuestionsAnswers] = useState([]);
   const data = useSelector((state) => state.globalDataset);
-  console.log(data);
-  console.log(questionsAnswers);
+  const cancelTokenSource = useRef(null);
+  const dispatch = useDispatch();
 
   const handleAskQuestions = () => {
     const newQuestion = { question: question.replace(/^[ \t]+|[ \t]+$/g, "") };
-    setQuestionsAnswers((previous) => [...previous, newQuestion]);
-    fetchBackendDataFromApi("POST", "/post-question/", {
-      data,
-      question: question,
-    })
+    setQuestionsAnswers((previous) => {
+      if (previous.length) {
+        return [...previous, newQuestion]; // Return updated array with new question added
+      } else {
+        return [newQuestion]; // Return new array with just the new question
+      }
+    });
+    setSending(true);
+
+    // cancel any ongoing request
+    if (cancelTokenSource.current) {
+      cancelTokenSource.current.cancel("Operation is cancel by th user");
+    }
+
+    // create a new cancel token
+    cancelTokenSource.current = axios.CancelToken.source();
+
+    fetchBackendDataFromApi(
+      "POST",
+      "/post-question/",
+      {
+        data,
+        question: question,
+      },
+      cancelTokenSource.current.token
+    )
       .then(() => {
         setQuestion("");
         fetchQuestionsAndAnswers();
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        if (axios.isCancel(error)) {
+          console.log("Request was cancelled");
+        } else {
+          console.log("Request failed", error);
+        }
+      })
+      .finally(() => {
+        setSending(false);
+        setQuestion("");
+      });
+  };
 
-    setQuestion("");
+  // cancelling api request to the backend
+  const handleCancelQuestion = () => {
+    if (cancelTokenSource.current) {
+      cancelTokenSource.current.cancel("Operation is cancel by th user");
+      cancelTokenSource.current = null;
+      setSending(false);
+    }
   };
   const fetchQuestionsAndAnswers = () => {
     fetchBackendDataFromApi("GET", "/get-questions-answers/")
-      .then((response) => setQuestionsAnswers(response))
-      .catch((error) => console.log(error));
+      .then((response) => {
+        if (response && Array.isArray(response)) {
+          setQuestionsAnswers(response);
+        } else {
+          console.error("Unexpected error format:", response);
+          setQuestionsAnswers([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching questions and answers:", error);
+        setQuestionsAnswers([]);
+      });
   };
 
   const handleChatBotClose = () => {
-    setChatOpen(false);
+    dispatch(setChatOpen(false));
   };
 
   useEffect(() => {
@@ -91,11 +143,7 @@ const Chatbot = ({ setChatOpen }) => {
             Ask questions from Jaspersoft AI
           </Typography>
         </Box>
-        <IconButton
-          edge="end"
-          color="inherit"
-          onClick={() => setChatOpen(false)}
-        >
+        <IconButton edge="end" color="inherit" onClick={handleChatBotClose}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </Box>
@@ -131,11 +179,10 @@ const Chatbot = ({ setChatOpen }) => {
         <IconButton
           edge="false"
           color="inherit"
-          onClick={handleAskQuestions}
+          onClick={sending ? handleCancelQuestion : handleAskQuestions}
           disabled={!question.trim()}
         >
-          <SendLogo />
-          {/* <SendIcon fontSize="small" /> */}
+          {sending ? <StopIcon fontSize="small" /> : <SendLogo />}
         </IconButton>
       </Box>
     </Box>
