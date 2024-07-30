@@ -5,7 +5,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import PropTypes from "prop-types";
 import { Button, Box } from "@mui/material";
 import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Checkbox, ListItemText } from '@mui/material';
 
@@ -18,16 +17,13 @@ import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 const VisualizationQueryComponent = () => {
   const [queryResults, setQueryResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isQueryExecutedSuccessfully, setIsQueryExecutedSuccessfully] =
-    useState(false);
-  const [stringFieldIndexes, setStringFieldIndexes] = useState([]);
-  const [tabValue, setTabValue] = React.useState(0);
+  const [isQueryExecutedSuccessfully, setIsQueryExecutedSuccessfully] = useState(false);
   const [originalData, setOriginalData] = useState();
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentSelection, setCurrentSelection] = useState([]);
-  const [edaData, setEdaData] = useState([]);
-  const [panelContent, setPanelContent] = useState('');
+  const [panelContent, setPanelContent] = useState({});
+  const [panelOption, setPanelOption] = useState('');
   const [anomalies, setAnomalies] = useState({});
   const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(false);
   const dispatch = useDispatch();
@@ -38,12 +34,7 @@ const VisualizationQueryComponent = () => {
   const fieldsOfSelectedVisualization = useSelector(
     (state) => state.visualization.fieldsOfSelectedVisualization
   );
-  const updatedColumns = useSelector(
-    (state) => state.visualization.updatedColumns
-  );
-  const handleChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
+
   const rawData = `{
     "description": {
         "totalsales": {
@@ -164,17 +155,9 @@ const VisualizationQueryComponent = () => {
 }`;
   const parsedData = JSON.parse(rawData)
   // const anomalies = parsedData;
-  // const tabs = ['Linear regression', 'Cluster', 'Analysis'];
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
     .map(() => new Array());
-  const headerName = [];
-  const removeBlankSpaces = (reference) => {
-    if (reference === null) {
-      return reference;
-    }
-    return reference.replace(/ /g, "");
-  };
   const sendDataToEDA = () => {
     axios({
       url: 'http://10.97.103.197:8000/eda/',
@@ -196,7 +179,7 @@ const VisualizationQueryComponent = () => {
       setIsAnomalyLoaded(true)
     }).catch(e => {
       console.log(e)
-    });;
+    });
   }
   useEffect(() => {
     if (queryResults) {
@@ -242,18 +225,6 @@ const VisualizationQueryComponent = () => {
           setOriginalData(response);
 
         }
-        const getStringColumns = response.dataset.fields.reduce(
-          (acc, field, index) => {
-            if (field.type === "string") {
-              acc.push({ index, name: field.reference });
-            }
-            return acc;
-          },
-          []
-        );
-        response.dataset.fields.filter((field) => field.type !== "string");
-
-        setStringFieldIndexes(getStringColumns);
       })
       .catch((e) => {
         setIsQueryExecutedSuccessfully(false);
@@ -262,34 +233,6 @@ const VisualizationQueryComponent = () => {
       .finally(() => setIsLoading(false));
   }, [fieldsOfSelectedVisualization, selectedVisualization]);
 
-  function CustomTabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-      >
-        {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-      </div>
-    );
-  }
-
-  CustomTabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-  };
-
-  function a11yProps(index) {
-    return {
-      id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
-    };
-  }
   const handleFilterColumn = (e) => {
     const { value } = e.target;
     const newSelection = typeof value === "string" ? value.split(",") : value;
@@ -328,7 +271,7 @@ const VisualizationQueryComponent = () => {
     setCurrentSelection([...currentSelection]);
   };
 
-  const toggleRightPanel = (open, content = null) => (event) => {
+  const toggleRightPanel = (open, panelOption = null, content) => (event) => {
     if (
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
@@ -336,7 +279,9 @@ const VisualizationQueryComponent = () => {
       return;
     }
     setRightPanelOpen(open);
+    setPanelOption(panelOption);
     setPanelContent(content);
+
 
   };
   const handleReset = () => {
@@ -417,7 +362,7 @@ const VisualizationQueryComponent = () => {
                   variant="contained"
                   color="primary"
                   className="btn anomaly-btn"
-                  onClick={toggleRightPanel(true, "anomalies")}
+                  onClick={toggleRightPanel(true, "anomalies", anomalies)}
                 >
                   View all anomalies ({Object.keys(anomalies.anomaly).length})
                 </Button>
@@ -425,8 +370,9 @@ const VisualizationQueryComponent = () => {
 
                 <RightPanel
                   onOpen={rightPanelOpen}
-                  handleEvent={toggleRightPanel(false, "")}
-                  content={panelContent}
+                  handleEvent={toggleRightPanel(false)}
+                  panelOption={panelOption}
+                  panelContent={panelContent}
                 />
                 {showFilters && (
                   <AppliedFilters
@@ -442,37 +388,6 @@ const VisualizationQueryComponent = () => {
                   dataBycolumn={dataBycolumn}
                   anomalies={anomalies.anomaly}
                 />
-                {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Tabs
-                    value={tabValue}
-                    onChange={handleChange}
-                    aria-label="basic tabs example"
-                  >
-                    <Tab label="Workspace" {...a11yProps(0)} />
-                    <Tab label="Analysis" {...a11yProps(1)} />
-                  </Tabs>
-                </Box>
-
-                <CustomTabPanel
-                  value={tabValue}
-                  index={0}
-                  style={{ padding: "0" }}
-                >
-                  <TabularReport
-                    fields={queryResults.dataset.fields}
-                    rows={queryResults.dataset.rows}
-                    dataBycolumn={dataBycolumn}
-                  />
-                </CustomTabPanel>
-                <CustomTabPanel
-                  value={tabValue}
-                  index={1}
-                  style={{ padding: "0" }}
-                >
-                </CustomTabPanel>
-                <CustomTabPanel value={tabValue} index={2}>
-                  <Eda dataset={queryResults.dataset} />
-                </CustomTabPanel> */}
               </Box>
             )}
           </div>

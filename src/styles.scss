@@ -1,7 +1,7 @@
 @import "./Components/Header/header.scss";
 @import "./Components/Clustering/clustering.scss";
 @import "./Components/linearRegression/linearRegression.scss";
-@import "./Components/Eda/eda.scss";
+@import "./Components/RightPanel/eda.scss";
 @import "./Components/TabularReport/tabularReport.scss";
 @import "./Components/Chatbot/chatbot.scss";
 
@@ -117,7 +117,8 @@ Table {
   display: flex;
   align-items: center;
   h6 {
-    text-transform: unset;
+    margin: 0;
+    font-weight: bold;
   }
   button {
     color: #0076ad;

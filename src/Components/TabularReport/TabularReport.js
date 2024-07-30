@@ -3,7 +3,6 @@
  * Licensed pursuant to commercial Cloud Software Group, Inc End User License Agreement.
  */
 
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { setGlobalDataset } from "../../Features/globalDatasetSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,28 +20,19 @@ import {
   DialogTitle,
   DialogContent,
 } from "@mui/material";
-import CardComponent from "../LinearRegression/CardComponent";
-import AppliedFilters from "../../Utilities/AppliedFilters";
-import Dropdown from "../../Utilities/Dropdown";
 import Chatbot from "../Chatbot/Chatbot";
 import RegressionAnalysisPopup from "../RegressionAnalysisPopup/RegressionAnalysisPopup";
-import { fetchBackendDataFromApi } from "../../Utilities/backendApi";
 
 const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
-  const [updateRow, setUpdateRow] = useState(false);
-  const [regressionResult, setRegressionResult] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const { chatOpen } = useSelector((state) => state.chatOpen);
+  const dispatch = useDispatch();
   const anomalyValues = {};
+  const headerName = [];
+
   for (let key in anomalies) {
     anomalyValues[key] = anomalies[key].map((anomaly) => anomaly[key]);
   }
-
-  const { chatOpen } = useSelector((state) => state.chatOpen);
-  const dispatch = useDispatch();
-
-  // const numericFields = fields.filter((field) => field.type !== "string");
-  const headerName = [];
 
   const removeBlankSpaces = (reference) => {
     if (reference === null) {

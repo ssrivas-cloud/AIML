@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import './App.css';
 import './styles.scss';
-import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedVisualization, setFieldsOfSelectedVisualization } from './Features/visualizationSlice';
+import { useSelector } from 'react-redux';
 import Header from './Components/Header/Header';
 import ListReports from "./Components/ListReports"
 import VisualizationColumnsComponent from './Components/VisualizationColumnsComponent';
@@ -11,29 +10,15 @@ import VisualizationQueryComponent from './Components/VisualizationQueryComponen
 
 
 function App() {
-  // const [selectedVisualization, setSelectedVisualization] = useState('');
-  // const [fieldsOfSelectedVisualization, setFieldsOfSelectedVisualization] = useState([]);
-  // console.log('1')
-  const dispatch = useDispatch();
   const selectedVisualization = useSelector((state) => state.visualization.selectedVisualization);
   const fieldsOfSelectedVisualization = useSelector((state) => state.visualization.fieldsOfSelectedVisualization);
-  // console.log(selectedVisualization)
-  // const whenVisualizationIsSelected = (vis) => {
-  //   dispatch(setSelectedVisualization(vis));
-  //   // setSelectedVisualization(vis);
-  //   // setFieldsOfSelectedVisualization([]);
-  // };
-  const whenFieldsArePopulated = (fields) => {
-    dispatch(setFieldsOfSelectedVisualization(fields));
-    // setFieldsOfSelectedVisualization(fields);
-  };
+
 
   return (
     <>
       <Header />
       <main>
         <section className="app-section list-report">
-          {/* <ListReports onVisualizationSelected={whenVisualizationIsSelected} visualizationSelected={selectedVisualization} /> */}
           <ListReports />
         </section>
         {!selectedVisualization &&
@@ -43,24 +28,16 @@ function App() {
           </div>
         }
         {selectedVisualization && <section className="app-section">
-
-          {/* <VisualizationColumnsComponent visualizationSelected={selectedVisualization} onFieldsPopulated={whenFieldsArePopulated} /> */}
-          <VisualizationColumnsComponent/>
-
-
+          <VisualizationColumnsComponent />
           <div className="col box-section-container">
             {(fieldsOfSelectedVisualization?.length > 0 || fieldsOfSelectedVisualization.query) &&
-              <VisualizationQueryComponent
-                // visualizationSelected={selectedVisualization}
-                // fields={fieldsOfSelectedVisualization}
-
-              />
+              <VisualizationQueryComponent />
             }
-            {(fieldsOfSelectedVisualization?.length <= 0 || !fieldsOfSelectedVisualization.query) && <div className="text-center mt-4">No execution available yet (Loading...)</div>}
+            {(fieldsOfSelectedVisualization?.length <= 0 || !fieldsOfSelectedVisualization.query) && <div className="text-center mt-4">No execution available yet</div>}
           </div>
         </section>
         }
-        </main>
+      </main>
 
     </>
   );
