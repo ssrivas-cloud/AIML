@@ -4,6 +4,8 @@ import visualizationReducer from "./Features/visualizationSlice";
 import reportListReducer from "./Features/reportListSlice";
 import globalDatasetReducer from "./Features/globalDatasetSlice";
 import chatOpenReducer from "./Features/chatOpenSlice";
+import dependentReducer from "./Features/dependentSlice";
+import forecastOpenReducer from "./Features/forecastOpenSlice";
 
 const store = configureStore({
   reducer: {
@@ -11,6 +13,8 @@ const store = configureStore({
     reportList: reportListReducer,
     globalDataset: globalDatasetReducer,
     chatOpen: chatOpenReducer,
+    dependent: dependentReducer,
+    forecastOpen: forecastOpenReducer,
   },
 });
 

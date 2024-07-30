@@ -5,6 +5,7 @@ import { fetchReportList } from "../Features/reportListSlice";
 import { setSelectedVisualization } from "../Features/visualizationSlice";
 import { setChatOpen } from "../Features/chatOpenSlice";
 import { fetchBackendDataFromApi } from "../Utilities/backendApi";
+import { setForecastOpen } from "../Features/forecastOpenSlice";
 
 const ListReports = () => {
   const dispatch = useDispatch();
@@ -20,6 +21,7 @@ const ListReports = () => {
 
   const handleChange = (event) => {
     dispatch(setSelectedVisualization(event.target.value));
+    dispatch(setForecastOpen(false));
 
     // send delete request to the backend and handle response
     fetchBackendDataFromApi("DELETE", "/delete-questions-answers/")

@@ -2,9 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const globalDatasetSlice = createSlice({
   name: "dataset",
-  initialState: {
-    data: {},
-  },
+  initialState: {},
   reducers: {
     setGlobalDataset: (state, action) => {
       state.data = action.payload;
