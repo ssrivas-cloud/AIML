@@ -22,6 +22,8 @@ import {
 } from "@mui/material";
 import Chatbot from "../Chatbot/Chatbot";
 import RegressionAnalysisPopup from "../RegressionAnalysisPopup/RegressionAnalysisPopup";
+import Forecast from "../Forecast/Forecast";
+import { fetchBackendDataFromApi } from "../../Utilities/backendApi";
 
 const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -33,6 +35,13 @@ const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
   for (let key in anomalies) {
     anomalyValues[key] = anomalies[key].map((anomaly) => anomaly[key]);
   }
+
+  const { chatOpen } = useSelector((state) => state.chatOpen);
+  const { forecastOpen } = useSelector((state) => state.forecastOpen);
+  const dispatch = useDispatch();
+
+  // const numericFields = fields.filter((field) => field.type !== "string");
+  const headerName = [];
 
   const removeBlankSpaces = (reference) => {
     if (reference === null) {
@@ -66,60 +75,62 @@ const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
     );
   };
   useEffect(() => {
-    dispatch(
-      setGlobalDataset({ "column Names": headerName, "data Rows": rows })
-    );
+    dispatch(setGlobalDataset({ headerNames: headerName, dataRows: rows }));
   }, [dispatch, headerName, rows]);
 
   return (
     <div className="tabular-report-wrapper">
-      <Box sx={{ minWidth: 120, maxHeight: "50vh", padding: 2 }}>
-        <TableContainer component={Paper} className="tabular-report-table">
-          <Table aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                {fields.map((field) => {
-                  headerName.push(field.reference);
+      <Box sx={{ minWidth: 120, maxHeight: "50vh" }}>
+        {forecastOpen ? (
+          <Forecast />
+        ) : (
+          <TableContainer component={Paper} className="tabular-report-table">
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  {fields.map((field) => {
+                    headerName.push(field.reference);
+                    return (
+                      <TableCell key={field.reference} scope="col">
+                        {removeBlankSpaces(field.reference)}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row, index) => {
+                  const isRowAnomaly = isAnomaly(row);
                   return (
-                    <TableCell key={field.reference} scope="col">
-                      {removeBlankSpaces(field.reference)}
-                    </TableCell>
+                    <TableRow key={index}>
+                      {row.map((s, newIdx) => {
+                        dataBycolumn[newIdx].push(s);
+                        return (
+                          <TableCell
+                            key={newIdx * 9500}
+                            style={{
+                              backgroundColor: isRowAnomaly
+                                ? "#FEFACC"
+                                : "inherit",
+                              fontWeight: isAnomalyCell(s, newIdx)
+                                ? "bold"
+                                : "normal",
+                              color: isAnomalyCell(s, newIdx)
+                                ? "#7A1106"
+                                : "#61676B",
+                            }}
+                          >
+                            {removeBlankSpaces(s)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
                   );
                 })}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row, index) => {
-                const isRowAnomaly = isAnomaly(row);
-                return (
-                  <TableRow key={index}>
-                    {row.map((s, newIdx) => {
-                      dataBycolumn[newIdx].push(s);
-                      return (
-                        <TableCell
-                          key={newIdx * 9500}
-                          style={{
-                            backgroundColor: isRowAnomaly
-                              ? "#FEFACC"
-                              : "inherit",
-                            fontWeight: isAnomalyCell(s, newIdx)
-                              ? "bold"
-                              : "normal",
-                            color: isAnomalyCell(s, newIdx)
-                              ? "#7A1106"
-                              : "#61676B",
-                          }}
-                        >
-                          {removeBlankSpaces(s)}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
 
         {chatOpen ? <Chatbot /> : ""}
 
@@ -137,34 +148,26 @@ const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
           >
             Ask questions
           </button>
-          <button
-            className={`btn ${openDialog ? "" : "adv-filter"}`}
-            variant="outlined"
-            onClick={handleOpenDialog}
-          >
-            Forecast
-          </button>
+          {forecastOpen ? (
+            ""
+          ) : (
+            <button
+              className={`btn ${openDialog ? "" : "adv-filter"}`}
+              variant="outlined"
+              onClick={handleOpenDialog}
+            >
+              Forecast
+            </button>
+          )}
         </div>
       </Box>
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        aria-labelledby="regression-analysis-dialog-title"
-        className="regression-dialog"
-      >
-        <DialogTitle id="regression-analysis-dialog-title">
-          Run regression analysis
-        </DialogTitle>
-
-        <p>
-          To run the regression analysis please select a dependent variable (The
-          value which you want to be forecasted).
-        </p>
-        <DialogContent>
-          <RegressionAnalysisPopup numericFields={fields} />
-        </DialogContent>
-      </Dialog>
+      <RegressionAnalysisPopup
+        numericFields={fields}
+        setOpenDialog={setOpenDialog}
+        openDialog={openDialog}
+        handleCloseDialog={handleCloseDialog}
+      />
     </div>
   );
 };

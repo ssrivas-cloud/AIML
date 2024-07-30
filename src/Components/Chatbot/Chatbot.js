@@ -41,7 +41,7 @@ const Chatbot = () => {
       "POST",
       "/post-question/",
       {
-        data,
+        data: data["data"],
         question: question,
       },
       cancelTokenSource.current.token

@@ -6,27 +6,40 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Box } from "@mui/material";
-import { FormControl, InputLabel, Select, MenuItem, OutlinedInput, Checkbox, ListItemText } from '@mui/material';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput,
+  Checkbox,
+  ListItemText,
+} from "@mui/material";
 
+import { setForecastOpen } from "../Features/forecastOpenSlice";
 import { setChatOpen } from "../Features/chatOpenSlice";
 import TabularReport from "../Components/TabularReport/TabularReport";
 import AppliedFilters from "../Utilities/AppliedFilters";
 import RightPanel from "./RightPanel/RightPanel";
 import { fetchBackendDataFromApi } from "../Utilities/backendApi";
+import Forecast from "./Forecast/Forecast";
 
 const VisualizationQueryComponent = () => {
   const [queryResults, setQueryResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isQueryExecutedSuccessfully, setIsQueryExecutedSuccessfully] = useState(false);
+  const [isQueryExecutedSuccessfully, setIsQueryExecutedSuccessfully] =
+    useState(false);
   const [originalData, setOriginalData] = useState();
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentSelection, setCurrentSelection] = useState([]);
   const [panelContent, setPanelContent] = useState({});
-  const [panelOption, setPanelOption] = useState('');
+  const [panelOption, setPanelOption] = useState("");
   const [anomalies, setAnomalies] = useState({});
   const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(false);
   const dispatch = useDispatch();
+
+  const { forecastOpen } = useSelector((state) => state.forecastOpen);
 
   const selectedVisualization = useSelector(
     (state) => state.visualization.selectedVisualization
@@ -153,34 +166,36 @@ const VisualizationQueryComponent = () => {
         ]
     }
 }`;
-  const parsedData = JSON.parse(rawData)
+  const parsedData = JSON.parse(rawData);
   // const anomalies = parsedData;
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
     .map(() => new Array());
   const sendDataToEDA = () => {
     axios({
-      url: 'http://10.97.103.197:8000/eda/',
-      method: 'post',
+      url: "http://localhost:8000/eda/",
+      method: "post",
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
       data: JSON.stringify({
-        fields: queryResults?.dataset?.fields?.map(field => field.reference),
-        rows: queryResults?.dataset?.rows
+        fields: queryResults?.dataset?.fields?.map((field) => field.reference),
+        rows: queryResults?.dataset?.rows,
+      }),
+    })
+      .then(({ data }) => {
+        if (data.Response.Message) {
+          setAnomalies(data.Response.Message);
+        } else {
+          setAnomalies(JSON.parse(data.Response));
+        }
+        setIsAnomalyLoaded(true);
       })
-    }).then(({ data }) => {
-      if (data.Response.Message) {
-        setAnomalies(data.Response.Message)
-      } else {
-        setAnomalies(JSON.parse(data.Response))
-      }
-      setIsAnomalyLoaded(true)
-    }).catch(e => {
-      console.log(e)
-    });
-  }
+      .catch((e) => {
+        console.log(e);
+      });
+  };
   useEffect(() => {
     if (queryResults) {
       sendDataToEDA();
@@ -198,17 +213,17 @@ const VisualizationQueryComponent = () => {
         data: fieldsOfSelectedVisualization.query
           ? fieldsOfSelectedVisualization
           : {
-            query: {
-              select: {
-                fieldsOfSelectedVisualization,
+              query: {
+                select: {
+                  fieldsOfSelectedVisualization,
+                },
+              },
+              dataSource: {
+                reference: {
+                  uri: selectedVisualization.uri,
+                },
               },
             },
-            dataSource: {
-              reference: {
-                uri: selectedVisualization.uri,
-              },
-            },
-          },
       });
       return data;
     };
@@ -223,7 +238,6 @@ const VisualizationQueryComponent = () => {
           setIsQueryExecutedSuccessfully(true);
           setQueryResults(response);
           setOriginalData(response);
-
         }
       })
       .catch((e) => {
@@ -239,6 +253,7 @@ const VisualizationQueryComponent = () => {
     setCurrentSelection(newSelection);
   };
   const applyFilterColumn = () => {
+    forecastOpen && dispatch(setForecastOpen(false));
     setQueryResults((prevState) => {
       const columnIndexes = currentSelection.map((col) =>
         originalData.dataset.fields.findIndex(
@@ -271,25 +286,28 @@ const VisualizationQueryComponent = () => {
     setCurrentSelection([...currentSelection]);
   };
 
-  const toggleRightPanel = (open, panelOption = null, content) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-    setRightPanelOpen(open);
-    setPanelOption(panelOption);
-    setPanelContent(content);
-
-
-  };
+  const toggleRightPanel =
+    (open, panelOption = null, content) =>
+    (event) => {
+      if (
+        event.type === "keydown" &&
+        (event.key === "Tab" || event.key === "Shift")
+      ) {
+        return;
+      }
+      setRightPanelOpen(open);
+      setPanelOption(panelOption);
+      setPanelContent(content);
+    };
   const handleReset = () => {
+    forecastOpen && dispatch(setForecastOpen(false));
     setCurrentSelection([]);
     setQueryResults(originalData);
     setShowFilters(false);
   };
   const removeSingleFilter = (index) => {
+    forecastOpen && dispatch(setForecastOpen(false));
+
     const newFilterColumn = currentSelection.filter((_, i) => i !== index);
     setCurrentSelection(newFilterColumn);
     setQueryResults((prevState) => {
@@ -330,16 +348,14 @@ const VisualizationQueryComponent = () => {
                     input={<OutlinedInput label="Select column" />}
                     renderValue={(selected) => selected.join(", ")}
                   >
-
-                    {
-                      originalData.dataset.fields.map((option, index) => (
-                        <MenuItem key={index} value={option.reference} >
-                          <Checkbox checked={currentSelection.includes(option.reference)} />
-                          <ListItemText primary={option.reference} />
-                        </MenuItem>
-                      ))
-
-                    }
+                    {originalData.dataset.fields.map((option, index) => (
+                      <MenuItem key={index} value={option.reference}>
+                        <Checkbox
+                          checked={currentSelection.includes(option.reference)}
+                        />
+                        <ListItemText primary={option.reference} />
+                      </MenuItem>
+                    ))}
                     <div className="apply-btn-wrapper">
                       <button className="btn" onClick={applyFilterColumn}>
                         Apply
@@ -358,15 +374,16 @@ const VisualizationQueryComponent = () => {
                 >
                   Advanced Filter
                 </Button>
-                {isAnomalyLoaded && <Button
-                  variant="contained"
-                  color="primary"
-                  className="btn anomaly-btn"
-                  onClick={toggleRightPanel(true, "anomalies", anomalies)}
-                >
-                  View all anomalies ({Object.keys(anomalies.anomaly).length})
-                </Button>
-                }
+                {isAnomalyLoaded && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className="btn anomaly-btn"
+                    onClick={toggleRightPanel(true, "anomalies", anomalies)}
+                  >
+                    View all anomalies ({Object.keys(anomalies.anomaly).length})
+                  </Button>
+                )}
 
                 <RightPanel
                   onOpen={rightPanelOpen}
@@ -391,6 +408,7 @@ const VisualizationQueryComponent = () => {
               </Box>
             )}
           </div>
+
           {!isAnomalyLoaded && <h2 className="text-center">Loading...</h2>}
           {!isLoading && !isQueryExecutedSuccessfully && (
             <h4 className="text-center">Query does not return any data.</h4>
