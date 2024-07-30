@@ -1,7 +1,8 @@
 import React from 'react';
-import { Drawer, Button } from '@mui/material';
-import Eda from '../Eda/Eda';
-const RightPanel = ({ onOpen, handleEvent, content }) => {
+import { Drawer, IconButton  } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import Eda from './Eda';
+const RightPanel = ({ onOpen, handleEvent, panelOption, panelContent }) => {
     const handleClose = () => {
         handleEvent(false);
     };
@@ -17,17 +18,16 @@ const RightPanel = ({ onOpen, handleEvent, content }) => {
                 onKeyDown={handleClose}
                 style={{ width: 900, padding: 20 }}
             >
+                 <IconButton
+                    style={{ position: 'absolute', top: 10, right: 10 }}
+                    onClick={handleClose}
+                >
+                    <CloseIcon />
+                </IconButton>
 
                 {
-                    content == 'anomalies' ? <Eda/> : <></>
+                    panelOption == 'anomalies' ? <Eda panelContent={panelContent} /> : <></>
                 }
-                <Button
-                    variant="contained"
-                    color="primary"
-                    style={{ marginTop: 20 }}
-                >
-                    Apply advanced filter
-                </Button>
             </div>
         </Drawer>
     );
