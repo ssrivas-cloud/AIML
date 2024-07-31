@@ -1,12 +1,14 @@
-import * as React from "react";
+import React from "react";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
+
+import { setGlobalDependent } from "../../Features/dependentSlice";
+import { useSelector } from "react-redux";
 
 const columns = [
   { id: "name", label: "Name", minWidth: 170 },
@@ -57,10 +59,11 @@ const rows = [
   createData("Brazil", "BR", 210147125, 8515767),
 ];
 
-const TableForecast = () => {
+const TableForecast = ({ queryResults }) => {
+  const { dependent } = useSelector((state) => state.dependent);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+  let selectedColumns = queryResults.dataset.fields;
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -69,25 +72,32 @@ const TableForecast = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-
+  console.log(dependent, selectedColumns);
   return (
     <Paper sx={{ minWidth: "70%", overflow: "hidden" }}>
       <TableContainer sx={{ maxHeight: "100%" }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  //   style={{ minWidth: column.mi }}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
+              <TableCell>{dependent}</TableCell>
+              {selectedColumns.map(
+                (column, index) =>
+                  column.reference !== dependent && (
+                    <TableCell key={index} align="center">
+                      {column.reference}
+                    </TableCell>
+                  )
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
+            <TableRow>
+              <TableCell align="center">Hello Input</TableCell>
+              <TableCell align="center">Hello Input</TableCell>
+              <TableCell align="center">Hello Input</TableCell>
+              <TableCell align="center">Hello Input</TableCell>
+              <TableCell align="center">Hello Input</TableCell>
+            </TableRow>
             {rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
