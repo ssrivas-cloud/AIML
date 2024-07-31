@@ -5,11 +5,11 @@ import React from "react";
 import DependentForecast from "./DependentForecast";
 import DependentPredict from "./DependentPredict";
 
-const Forecast = () => {
+const Forecast = ({ queryResults }) => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <DependentForecast />
-      <DependentPredict />
+      <DependentForecast queryResults={queryResults} />
+      <DependentPredict queryResults={queryResults} />
     </Box>
   );
 };

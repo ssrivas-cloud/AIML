@@ -23,6 +23,7 @@ import AppliedFilters from "../Utilities/AppliedFilters";
 import RightPanel from "./RightPanel/RightPanel";
 import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 import Forecast from "./Forecast/Forecast";
+import { setGlobalDependent } from "../Features/dependentSlice";
 
 const VisualizationQueryComponent = () => {
   const [queryResults, setQueryResults] = useState(null);
@@ -301,13 +302,14 @@ const VisualizationQueryComponent = () => {
     };
   const handleReset = () => {
     forecastOpen && dispatch(setForecastOpen(false));
+    dispatch(setGlobalDependent(""));
     setCurrentSelection([]);
     setQueryResults(originalData);
     setShowFilters(false);
   };
   const removeSingleFilter = (index) => {
     forecastOpen && dispatch(setForecastOpen(false));
-
+    dispatch(setGlobalDependent(""));
     const newFilterColumn = currentSelection.filter((_, i) => i !== index);
     setCurrentSelection(newFilterColumn);
     setQueryResults((prevState) => {
@@ -404,6 +406,7 @@ const VisualizationQueryComponent = () => {
                   rows={queryResults.dataset.rows}
                   dataBycolumn={dataBycolumn}
                   anomalies={anomalies.anomaly}
+                  queryResults={queryResults}
                 />
               </Box>
             )}

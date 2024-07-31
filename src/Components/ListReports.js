@@ -6,6 +6,7 @@ import { setSelectedVisualization } from "../Features/visualizationSlice";
 import { setChatOpen } from "../Features/chatOpenSlice";
 import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 import { setForecastOpen } from "../Features/forecastOpenSlice";
+import { setGlobalDependent } from "../Features/dependentSlice";
 
 const ListReports = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,8 @@ const ListReports = () => {
       .catch((error) => {
         console.error("Error deleting questions and answers:", error);
       });
+
+    dispatch(setGlobalDependent(""));
   };
   return (
     <>

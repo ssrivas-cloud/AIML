@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ReactComponent as DownloadPredict } from "../../assets/download-file.svg";
 import {
   Box,
   FormControl,
@@ -13,7 +14,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 // Import Components
 import TableForecast from "./TableForecast";
 
-const DependentPredict = () => {
+const DependentPredict = ({ queryResults }) => {
   const [forecastPredict, setForecastPredict] = useState(false);
   return (
     <>
@@ -26,7 +27,9 @@ const DependentPredict = () => {
           }}
         >
           <Box sx={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-            <Typography variant="h5">Forecast and comparison</Typography>
+            <Typography variant="h5">
+              Forecast and comparison <DownloadPredict />
+            </Typography>
             <Typography variant="body2">
               Change the independent variable to forecast the prediction
             </Typography>
@@ -53,7 +56,7 @@ const DependentPredict = () => {
         </Box>
 
         <Box>
-          <TableForecast />
+          <TableForecast queryResults={queryResults} />
         </Box>
       </Box>
     </>

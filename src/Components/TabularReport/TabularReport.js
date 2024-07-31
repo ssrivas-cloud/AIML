@@ -25,9 +25,16 @@ import RegressionAnalysisPopup from "../RegressionAnalysisPopup/RegressionAnalys
 import Forecast from "../Forecast/Forecast";
 import { fetchBackendDataFromApi } from "../../Utilities/backendApi";
 
-const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
+const TabularReport = ({
+  fields,
+  rows,
+  dataBycolumn,
+  anomalies,
+  queryResults,
+}) => {
   const [openDialog, setOpenDialog] = useState(false);
   const { chatOpen } = useSelector((state) => state.chatOpen);
+  const { forecastOpen } = useSelector((state) => state.forecastOpen);
   const dispatch = useDispatch();
   const anomalyValues = {};
   const headerName = [];
@@ -36,12 +43,7 @@ const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
     anomalyValues[key] = anomalies[key].map((anomaly) => anomaly[key]);
   }
 
-  const { chatOpen } = useSelector((state) => state.chatOpen);
-  const { forecastOpen } = useSelector((state) => state.forecastOpen);
-  const dispatch = useDispatch();
-
   // const numericFields = fields.filter((field) => field.type !== "string");
-  const headerName = [];
 
   const removeBlankSpaces = (reference) => {
     if (reference === null) {
@@ -82,7 +84,7 @@ const TabularReport = ({ fields, rows, dataBycolumn, anomalies }) => {
     <div className="tabular-report-wrapper">
       <Box sx={{ minWidth: 120, maxHeight: "50vh" }}>
         {forecastOpen ? (
-          <Forecast />
+          <Forecast queryResults={queryResults} />
         ) : (
           <TableContainer component={Paper} className="tabular-report-table">
             <Table aria-label="simple table">

@@ -7,13 +7,17 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
+import { setGlobalDependent } from "../../Features/dependentSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-const DependentForecast = () => {
-  const [dependentVarible, setDependentVarible] = useState("");
-
-  const handleChange = (event) => {
-    setDependentVarible(event.target.value);
+const DependentForecast = ({ queryResults }) => {
+  console.log(queryResults);
+  const { dependent } = useSelector((state) => state.dependent);
+  const dispatch = useDispatch();
+  const handleDependentChange = () => {
+    console.log(dependent);
   };
+
   return (
     <>
       <Box
@@ -30,13 +34,13 @@ const DependentForecast = () => {
           <Select
             labelId="demo-simple-select-helper-label"
             id="demo-simple-select-helper"
-            value={dependentVarible}
-            label="Dependent variable"
-            onChange={handleChange}
+            value={dependent || ""}
+            label={dependent ? dependent : "Dependent variable"}
+            onChange={handleDependentChange}
           >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {queryResults?.dataset?.fields?.map((column) => (
+              <MenuItem value={column.reference}>{column.reference}</MenuItem>
+            ))}
           </Select>
         </FormControl>
         <Button
