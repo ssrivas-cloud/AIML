@@ -1,4 +1,9 @@
 .chatBotTextField {
+  display: flex;
+  align-items: center; /* Vertically center the input text */
+  height: auto;
+  overflow: hidden;
+  scrollbar-width: none; /* For Firefox */
   .MuiOutlinedInput-root {
     font-size: 13px;
     border: none !important;
@@ -11,4 +16,14 @@
       border-color: transparent !important;
     }
   }
+}
+
+.chatBotTextField input::placeholder {
+  display: flex;
+  align-items: center; /* Vertically center the placeholder text */
+  height: auto;
+  line-height: normal; /* Ensure normal line height for placeholder */
+}
+.chatBotTextField::-webkit-scrollbar {
+  display: none !important; /* For Chrome, Safari, and Edge */
 }
