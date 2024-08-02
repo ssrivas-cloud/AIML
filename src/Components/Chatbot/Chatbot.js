@@ -18,7 +18,7 @@ const Chatbot = () => {
   const cancelTokenSource = useRef(null);
   const dispatch = useDispatch();
 
-  const handleAskQuestions = () => {
+  const handleAskQuestions = (event) => {
     const newQuestion = { question: question.replace(/^[ \t]+|[ \t]+$/g, "") };
     setQuestionsAnswers((previous) => {
       if (previous.length) {
@@ -61,6 +61,16 @@ const Chatbot = () => {
         setSending(false);
         setQuestion("");
       });
+  };
+
+  // Handler for the Enter key press
+  const handleKeyDownAskQuestion = (event) => {
+    if (event.key === "Enter") {
+      if (!event.shiftKey) {
+        event.preventDefault();
+        sending ? handleCancelQuestion() : handleAskQuestions();
+      }
+    }
   };
 
   // cancelling api request to the backend
@@ -171,10 +181,11 @@ const Chatbot = () => {
           value={question}
           placeholder="How can I help you?"
           multiline
-          maxRows={3}
+          maxRows={4}
           sx={{ flexGrow: 1 }}
           className="chatBotTextField"
           onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={handleKeyDownAskQuestion}
         />
         <IconButton
           edge="false"
