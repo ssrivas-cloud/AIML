@@ -15,15 +15,11 @@ import {
   TableRow,
   Box,
   TableContainer,
-  Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+  Paper
 } from "@mui/material";
 import Chatbot from "../Chatbot/Chatbot";
-import RegressionAnalysisPopup from "../RegressionAnalysisPopup/RegressionAnalysisPopup";
+import RegressionAnalysisPopup from "../Forecast/RegressionAnalysisPopup";
 import Forecast from "../Forecast/Forecast";
-import { fetchBackendDataFromApi } from "../../Utilities/backendApi";
 
 const TabularReport = ({
   fields,
@@ -43,7 +39,7 @@ const TabularReport = ({
     anomalyValues[key] = anomalies[key].map((anomaly) => anomaly[key]);
   }
 
-  // const numericFields = fields.filter((field) => field.type !== "string");
+  const numericFields = fields.filter((field) => field.type !== "string");
 
   const removeBlankSpaces = (reference) => {
     if (reference === null) {
@@ -84,7 +80,7 @@ const TabularReport = ({
     <div className="tabular-report-wrapper">
       <Box sx={{ minWidth: 120, maxHeight: "50vh" }}>
         {forecastOpen ? (
-          <Forecast queryResults={queryResults} />
+          <Forecast queryResults={queryResults} numericFields={numericFields} />
         ) : (
           <TableContainer component={Paper} className="tabular-report-table">
             <Table aria-label="simple table">
@@ -165,10 +161,11 @@ const TabularReport = ({
       </Box>
 
       <RegressionAnalysisPopup
-        numericFields={fields}
+        fields={fields}
         setOpenDialog={setOpenDialog}
         openDialog={openDialog}
         handleCloseDialog={handleCloseDialog}
+        dataBycolumn={dataBycolumn}
       />
     </div>
   );

@@ -6,6 +6,7 @@ import globalDatasetReducer from "./Features/globalDatasetSlice";
 import chatOpenReducer from "./Features/chatOpenSlice";
 import dependentReducer from "./Features/dependentSlice";
 import forecastOpenReducer from "./Features/forecastOpenSlice";
+import forecastRegressionReducer from "./Features/forecastRegressionSlice";
 
 const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ const store = configureStore({
     chatOpen: chatOpenReducer,
     dependent: dependentReducer,
     forecastOpen: forecastOpenReducer,
+    forecastRegression: forecastRegressionReducer,
   },
 });
 

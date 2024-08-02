@@ -1,21 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import { ReactComponent as DownloadPredict } from "../../assets/download-file.svg";
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
-  Typography,
-} from "@mui/material";
+import { Box, Typography, Tooltip  } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-
-// Import Components
 import TableForecast from "./TableForecast";
+import { useSelector, useDispatch } from "react-redux";
+import { setPredictClicked, setRunTimePredictClick } from "../../Features/forecastRegressionSlice";
+const DependentPredict = ({ queryResults, numericFields }) => {
+  const enablePredict = useSelector((state) => state.forecastRegression.enablePredict);
+  const toolTipValue  = useSelector((state) => state.forecastRegression.toolTipValue);
 
-const DependentPredict = ({ queryResults }) => {
-  const [forecastPredict, setForecastPredict] = useState(false);
+  const dispatch = useDispatch();
+  const handlePredictClick = () => {
+    dispatch(setRunTimePredictClick(true));
+  };
+  const handleAddClick = () => {
+    dispatch(setPredictClicked(true));
+  };
   return (
     <>
       <Box sx={{ minWidth: 500, maxWidth: "100%" }}>
@@ -33,30 +33,45 @@ const DependentPredict = ({ queryResults }) => {
             <Typography variant="body2">
               Change the independent variable to forecast the prediction
             </Typography>
-            <p
-              style={{
-                display: "flex",
-                alignItems: "centers",
-                color: "#0076AD",
-                gap: "5px",
-              }}
-            >
-              Formula <InfoOutlinedIcon fontSize="small" />
-            </p>
+            <Tooltip title={toolTipValue || 'No formula available'} sx={{ fontSize: '2.25rem' }}>
+              <p
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  color: "#0076AD",
+                  gap: "5px",
+                  cursor: "pointer"
+                }}
+              >
+                Formula <InfoOutlinedIcon fontSize="small" />
+              </p>
+            </Tooltip>
           </Box>
           <Box sx={{ display: "flex", alignItems: "flex-end" }}>
             <button
-              className={`btn ${forecastPredict ? "" : "disabled"}`}
+              className={`btn ${enablePredict ? "" : "disabled"}`}
               variant="outlined"
-              onClick={() => setForecastPredict(!forecastPredict)}
+              onClick={handlePredictClick}
+              disabled={!enablePredict}
             >
               Predict
+            </button>
+            <button
+              className={`btn ${enablePredict ? "" : "disabled"}`}
+              variant="outlined"
+              onClick={handleAddClick}
+              disabled={!enablePredict}
+            >
+              Add to list
             </button>
           </Box>
         </Box>
 
         <Box>
-          <TableForecast queryResults={queryResults} />
+          <TableForecast
+            queryResults={queryResults}
+            numericFields={numericFields}
+          />
         </Box>
       </Box>
     </>
