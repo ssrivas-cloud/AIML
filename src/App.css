@@ -13,10 +13,6 @@ button {
     margin: 3px;
 }
 
-.app-section.list-report {
-    width: 20%;
-    margin: 0 0 12px 24px;
-}
 
 [id^="simple-tabpanel-"]>div {
     padding: 0;

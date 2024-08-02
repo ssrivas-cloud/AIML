@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
   Box,
   FormControl,
@@ -6,16 +6,15 @@ import {
   Select,
   MenuItem,
   Button,
+  Tooltip 
 } from "@mui/material";
-import { setGlobalDependent } from "../../Features/dependentSlice";
 import { useDispatch, useSelector } from "react-redux";
-
-const DependentForecast = ({ queryResults }) => {
-  console.log(queryResults);
+import { setGlobalDependent } from "../../Features/dependentSlice";
+const DependentForecast = ({ queryResults, numericFields }) => {
   const { dependent } = useSelector((state) => state.dependent);
   const dispatch = useDispatch();
-  const handleDependentChange = () => {
-    console.log(dependent);
+  const handleDependentChange = (e) => {
+    dispatch(setGlobalDependent(e.target.value));
   };
 
   return (
@@ -35,22 +34,23 @@ const DependentForecast = ({ queryResults }) => {
             labelId="demo-simple-select-helper-label"
             id="demo-simple-select-helper"
             value={dependent || ""}
-            label={dependent ? dependent : "Dependent variable"}
+            label={"Dependent variable"}
             onChange={handleDependentChange}
           >
-            {queryResults?.dataset?.fields?.map((column) => (
-              <MenuItem value={column.reference}>{column.reference}</MenuItem>
+            {numericFields.map((column, index) => (
+              <MenuItem key={index} value={column.reference}>{column.reference}</MenuItem>
             ))}
           </Select>
         </FormControl>
-        <Button
-          variant="contained"
-          color="primary"
-          className="btn adv-filter"
-          onClick={() => console.log("click")}
-        >
-          Forecast
-        </Button>
+       
+          <Button
+            variant="contained"
+            color="primary"
+            className="btn adv-filter"
+            onClick={() => console.log("click")}
+          >
+            Forecast
+          </Button>
       </Box>
     </>
   );

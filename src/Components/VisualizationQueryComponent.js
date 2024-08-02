@@ -22,7 +22,6 @@ import TabularReport from "../Components/TabularReport/TabularReport";
 import AppliedFilters from "../Utilities/AppliedFilters";
 import RightPanel from "./RightPanel/RightPanel";
 import { fetchBackendDataFromApi } from "../Utilities/backendApi";
-import Forecast from "./Forecast/Forecast";
 import { setGlobalDependent } from "../Features/dependentSlice";
 
 const VisualizationQueryComponent = () => {
@@ -36,8 +35,8 @@ const VisualizationQueryComponent = () => {
   const [currentSelection, setCurrentSelection] = useState([]);
   const [panelContent, setPanelContent] = useState({});
   const [panelOption, setPanelOption] = useState("");
-  const [anomalies, setAnomalies] = useState({});
-  const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(false);
+  // const [anomalies, setAnomalies] = useState({});
+  const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(true);
   const dispatch = useDispatch();
 
   const { forecastOpen } = useSelector((state) => state.forecastOpen);
@@ -168,40 +167,40 @@ const VisualizationQueryComponent = () => {
     }
 }`;
   const parsedData = JSON.parse(rawData);
-  // const anomalies = parsedData;
+  const anomalies = parsedData;
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
     .map(() => new Array());
-  const sendDataToEDA = () => {
-    axios({
-      url: "http://localhost:8000/eda/",
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      data: JSON.stringify({
-        fields: queryResults?.dataset?.fields?.map((field) => field.reference),
-        rows: queryResults?.dataset?.rows,
-      }),
-    })
-      .then(({ data }) => {
-        if (data.Response.Message) {
-          setAnomalies(data.Response.Message);
-        } else {
-          setAnomalies(JSON.parse(data.Response));
-        }
-        setIsAnomalyLoaded(true);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  };
-  useEffect(() => {
-    if (queryResults) {
-      sendDataToEDA();
-    }
-  }, [queryResults]);
+  // const sendDataToEDA = () => {
+  //   axios({
+  //     url: "http://10.97.103.197:8000/eda/",
+  //     method: "post",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Accept: "application/json",
+  //     },
+  //     data: JSON.stringify({
+  //       columns: queryResults?.dataset?.fields?.map((field) => field.reference),
+  //       data: queryResults?.dataset?.rows,
+  //     }),
+  //   })
+  //     .then(({ data }) => {
+  //       if (data.Response.Message) {
+  //         setAnomalies(data.Response.Message);
+  //       } else {
+  //         setAnomalies(JSON.parse(data.Response));
+  //       }
+  //       setIsAnomalyLoaded(true);
+  //     })
+  //     .catch((e) => {
+  //       console.log(e);
+  //     });
+  // };
+  // useEffect(() => {
+  //   if (queryResults) {
+  //     sendDataToEDA();
+  //   }
+  // }, [queryResults]);
   useEffect(() => {
     const executeQuery = async () => {
       const { data } = await axios({
@@ -214,17 +213,17 @@ const VisualizationQueryComponent = () => {
         data: fieldsOfSelectedVisualization.query
           ? fieldsOfSelectedVisualization
           : {
-              query: {
-                select: {
-                  fieldsOfSelectedVisualization,
-                },
-              },
-              dataSource: {
-                reference: {
-                  uri: selectedVisualization.uri,
-                },
+            query: {
+              select: {
+                fieldsOfSelectedVisualization,
               },
             },
+            dataSource: {
+              reference: {
+                uri: selectedVisualization.uri,
+              },
+            },
+          },
       });
       return data;
     };
@@ -289,17 +288,17 @@ const VisualizationQueryComponent = () => {
 
   const toggleRightPanel =
     (open, panelOption = null, content) =>
-    (event) => {
-      if (
-        event.type === "keydown" &&
-        (event.key === "Tab" || event.key === "Shift")
-      ) {
-        return;
-      }
-      setRightPanelOpen(open);
-      setPanelOption(panelOption);
-      setPanelContent(content);
-    };
+      (event) => {
+        if (
+          event.type === "keydown" &&
+          (event.key === "Tab" || event.key === "Shift")
+        ) {
+          return;
+        }
+        setRightPanelOpen(open);
+        setPanelOption(panelOption);
+        setPanelContent(content);
+      };
   const handleReset = () => {
     forecastOpen && dispatch(setForecastOpen(false));
     dispatch(setGlobalDependent(""));
@@ -335,7 +334,7 @@ const VisualizationQueryComponent = () => {
     <section className="container-fluid h-100 query-component">
       <div className="row h-100">
         <div className="col h-100">
-          <div style={{ height: "95px" }} className="filter-dropdowns">
+          <div className="filter-dropdowns">
             {!isLoading && isAnomalyLoaded && isQueryExecutedSuccessfully && (
               <Box sx={{ width: "100%" }}>
                 <FormControl sx={{ minWidth: 200, m: 1 }}>

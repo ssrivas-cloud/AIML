@@ -2,12 +2,12 @@
   position: relative;
   margin-left: 8px;
   .regression-btn {
-    position: sticky;
+    position: fixed;
     bottom: 0;
     z-index: 1000;
     background-color: #ffffff;
     padding: 10px;
-    // text-align: center;
+    width: 98%;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
     height: 74px;
   }

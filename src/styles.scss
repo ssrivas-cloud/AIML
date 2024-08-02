@@ -113,6 +113,13 @@ Table {
   z-index: 1;
   background-color: #f5f5f5;
 }
+.app-section.list-report {
+  width: 25vw;
+  margin: 0 0 12px 24px;
+  >div{
+      max-width: 250px;
+  }
+}
 
 .applied-filters {
   margin: 8px 8px;

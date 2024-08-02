@@ -1,86 +1,127 @@
-import React from "react";
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Select,
+  MenuItem,
+  Switch,
+  Paper,
+  IconButton
+} from '@mui/material';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import { useSelector, useDispatch } from "react-redux";
+import {
+  setEnablePredict,
+  setPredictClicked,
+  setRunTimePredictClick
+} from "../../Features/forecastRegressionSlice";
 
-import { setGlobalDependent } from "../../Features/dependentSlice";
-import { useSelector } from "react-redux";
-
-const columns = [
-  { id: "name", label: "Name", minWidth: 170 },
-  { id: "code", label: "ISO\u00a0Code", minWidth: 100 },
-  {
-    id: "population",
-    label: "Population",
-    minWidth: 170,
-    align: "right",
-    format: (value) => value.toLocaleString("en-US"),
-  },
-  {
-    id: "size",
-    label: "Size\u00a0(km\u00b2)",
-    minWidth: 170,
-    align: "right",
-    format: (value) => value.toLocaleString("en-US"),
-  },
-  {
-    id: "density",
-    label: "Density",
-    minWidth: 170,
-    align: "right",
-    format: (value) => value.toFixed(2),
-  },
-];
-
-function createData(name, code, population, size) {
-  const density = population / size;
-  return { name, code, population, size, density };
-}
-
-const rows = [
-  createData("India", "IN", 1324171354, 3287263),
-  createData("China", "CN", 1403500365, 9596961),
-  createData("Italy", "IT", 60483973, 301340),
-  createData("United States", "US", 327167434, 9833520),
-  createData("Canada", "CA", 37602103, 9984670),
-  createData("Australia", "AU", 25475400, 7692024),
-  createData("Germany", "DE", 83019200, 357578),
-  createData("Ireland", "IE", 4857000, 70273),
-  createData("Mexico", "MX", 126577691, 1972550),
-  createData("Japan", "JP", 126317000, 377973),
-  createData("France", "FR", 67022000, 640679),
-  createData("United Kingdom", "GB", 67545757, 242495),
-  createData("Russia", "RU", 146793744, 17098246),
-  createData("Nigeria", "NG", 200962417, 923768),
-  createData("Brazil", "BR", 210147125, 8515767),
-];
-
-const TableForecast = ({ queryResults }) => {
+const TableForecast = ({ queryResults, numericFields }) => {
+  const [inputValues, setInputValues] = useState({});
+  const [tableRows, setTableRows] = useState([]);
+  const [predictValue, setPredictValue] = useState('-');
   const { dependent } = useSelector((state) => state.dependent);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  let selectedColumns = queryResults.dataset.fields;
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const dispatch = useDispatch();
+  const forecastFields = queryResults.dataset.fields.filter(item => item.reference !== dependent && item.type !== 'string');
+  const predictClicked = useSelector((state) => state.forecastRegression.predictClicked);
+  const runTimePredictClick = useSelector((state) => state.forecastRegression.runTimePredictClick);
+
+  const formulaData = useSelector((state) => state.forecastRegression.regressionOutput);
+
+  useEffect(() => {
+    const allFilled = forecastFields.every(field => {
+      const value = inputValues[field.reference];
+      return value !== undefined && value !== '' && !isNaN(value);
+
+    });
+    dispatch(setEnablePredict(allFilled));
+
+  }, [inputValues]);
+
+  useEffect(() => {
+    if (predictClicked) {
+      const predictedValue = calculatePredictedValue(inputValues);
+
+      setTableRows(prevRows => [...prevRows, { ...inputValues, predictedValue }]);
+      setInputValues({});
+      dispatch(setEnablePredict(false));
+      dispatch(setPredictClicked(false));
+      setPredictValue('-');
+      dispatch(setRunTimePredictClick(false));
+
+    } else if (runTimePredictClick) {
+      const predictedValue = calculatePredictedValue(inputValues);
+
+      setPredictValue(predictedValue);
+      
+    }
+  }, [predictClicked, runTimePredictClick]);
+
+  const calculatePredictedValue = (inputValues) => {
+    const { intercept, coefficients } = formulaData;
+    let predictedValue = intercept;
+    for (let key in coefficients) {
+      predictedValue += coefficients[key] * inputValues[key];
+    }
+    return predictedValue.toFixed(2);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
+  const renderInputField = (item) => {
+    const handleInputChange = (e) => {
+      const value = e.target.value;
+      const reference = item.reference;
+      setInputValues(prevValues => ({
+        ...prevValues,
+        [reference]: value
+      }));
+    };
+    switch (item.type) {
+      case 'string':
+        const fieldIndex = queryResults.dataset.fields.indexOf(item.reference);
+        if (fieldIndex !== -1) {
+          const options = queryResults.dataset.rows.map(row => row[fieldIndex]);
+          return (
+            <Select>
+              {options.map((option, index) => (
+                <MenuItem key={index} value={option}>{option}</MenuItem>
+              ))}
+            </Select>
+          );
+        }
+      case 'integer':
+      case 'bigDecimal':
+        return (
+          <TextField type="number" value={inputValues[item.reference] || 0} onChange={handleInputChange} />
+        );
+      case 'date':
+        return (
+          <TextField type="date" value={inputValues[item.reference] || ''} onChange={handleInputChange} />
+        );
+      case 'boolean':
+        return (
+          <Switch checked={Boolean(inputValues[item.reference])} onChange={handleInputChange} />
+        );
+      default:
+        return null;
+    }
+
   };
-  console.log(dependent, selectedColumns);
+  const handleDeleteRow = (rowIndex) => {
+    setTableRows(prevRows => prevRows.filter((_, index) => index !== rowIndex));
+  };
   return (
-    <Paper sx={{ minWidth: "70%", overflow: "hidden" }}>
+    <Paper sx={{ minWidth: "70%", overflow: "hidden", paddingBottom: "74px" }}>
       <TableContainer sx={{ maxHeight: "100%" }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
               <TableCell>{dependent}</TableCell>
-              {selectedColumns.map(
+              {numericFields.map(
                 (column, index) =>
                   column.reference !== dependent && (
                     <TableCell key={index} align="center">
@@ -91,31 +132,27 @@ const TableForecast = ({ queryResults }) => {
             </TableRow>
           </TableHead>
           <TableBody>
+
             <TableRow>
-              <TableCell align="center">Hello Input</TableCell>
-              <TableCell align="center">Hello Input</TableCell>
-              <TableCell align="center">Hello Input</TableCell>
-              <TableCell align="center">Hello Input</TableCell>
-              <TableCell align="center">Hello Input</TableCell>
+              <TableCell>{predictValue}</TableCell>
+              {forecastFields.map((item, index) => (
+                <TableCell align="center" key={index}>{renderInputField(item)}</TableCell>
+              ))}
+
             </TableRow>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {column.format && typeof value === "number"
-                            ? column.format(value)
-                            : value}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
+            {tableRows.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                <TableCell>
+                  <IconButton onClick={() => handleDeleteRow(rowIndex)} sx={{ color: 'red' }}>
+                    <DeleteOutlineRoundedIcon />
+                  </IconButton>
+                  <span>{row.predictedValue}</span>
+                </TableCell>
+                {forecastFields.map((item, colIndex) => (
+                  <TableCell align="center" key={colIndex}>{row[item.reference]}</TableCell>
+                ))}
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
