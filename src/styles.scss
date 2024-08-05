@@ -1,7 +1,5 @@
 @import "./Components/Header/header.scss";
-@import "./Components/Clustering/clustering.scss";
-@import "./Components/linearRegression/linearRegression.scss";
-@import "./Components/RightPanel/eda.scss";
+@import "./Components/EdaRightPanel/eda.scss";
 @import "./Components/TabularReport/tabularReport.scss";
 @import "./Components/Chatbot/chatbot.scss";
 
@@ -159,6 +157,8 @@ Table {
   }
 }
 .apply-btn-wrapper {
+  position: sticky;
+  bottom: 0;
   button {
     margin: 0;
     width: 50%;

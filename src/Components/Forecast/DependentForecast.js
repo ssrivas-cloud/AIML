@@ -1,20 +1,19 @@
-import React, {useState} from "react";
+import React from "react";
 import {
   Box,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Button,
-  Tooltip 
+  Button 
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { setGlobalDependent } from "../../Features/dependentSlice";
+import { setDependentValue } from "../../Features/forecastRegressionSlice";
 const DependentForecast = ({ queryResults, numericFields }) => {
-  const { dependent } = useSelector((state) => state.dependent);
+  const dependentValue  = useSelector((state) => state.forecastRegression.dependentValue);
   const dispatch = useDispatch();
   const handleDependentChange = (e) => {
-    dispatch(setGlobalDependent(e.target.value));
+    dispatch(setDependentValue(e.target.value));
   };
 
   return (
@@ -33,7 +32,7 @@ const DependentForecast = ({ queryResults, numericFields }) => {
           <Select
             labelId="demo-simple-select-helper-label"
             id="demo-simple-select-helper"
-            value={dependent || ""}
+            value={dependentValue || ""}
             label={"Dependent variable"}
             onChange={handleDependentChange}
           >

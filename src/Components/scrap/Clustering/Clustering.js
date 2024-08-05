@@ -57,7 +57,6 @@ const Clustering = ({ fields, rows, stringFieldIndexes }) => {
         const dataSendToserver = {}
         dataSendToserver.clusterFields = []
         const ClusteringFieldsData = {}
-        // console.log(dataSendToserver)
 
         clusterFields.map((fieldChoseByuser) => {
             const fieldInx = headerName.indexOf(fieldChoseByuser)
@@ -74,7 +73,7 @@ const Clustering = ({ fields, rows, stringFieldIndexes }) => {
             }
         });
 
-        console.log(dataSendToserver)
+        // console.log(dataSendToserver)
         setIsLoading(true);
         axios({
             url: 'http://10.97.103.197:8000/cluster/',
