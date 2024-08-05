@@ -7,4 +7,11 @@
         font-weight: bold;
         margin-bottom: 20px;
     }
+    .anomalies-table-wrapper{
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        max-height: 50vh;
+        margin-bottom: 20px;
+    }
 }

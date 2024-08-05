@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -25,14 +25,14 @@ const TableForecast = ({ queryResults, numericFields }) => {
   const [inputValues, setInputValues] = useState({});
   const [tableRows, setTableRows] = useState([]);
   const [predictValue, setPredictValue] = useState('-');
-  const { dependent } = useSelector((state) => state.dependent);
+  const dependentValue = useSelector((state) => state.forecastRegression.dependentValue);
   const dispatch = useDispatch();
-  const forecastFields = queryResults.dataset.fields.filter(item => item.reference !== dependent && item.type !== 'string');
+  const forecastFields = queryResults.dataset.fields.filter(item => item.reference !== dependentValue && item.type !== 'string');
   const predictClicked = useSelector((state) => state.forecastRegression.predictClicked);
   const runTimePredictClick = useSelector((state) => state.forecastRegression.runTimePredictClick);
 
   const formulaData = useSelector((state) => state.forecastRegression.regressionOutput);
-
+  const previousDependentRef = useRef(dependentValue);
   useEffect(() => {
     const allFilled = forecastFields.every(field => {
       const value = inputValues[field.reference];
@@ -42,10 +42,15 @@ const TableForecast = ({ queryResults, numericFields }) => {
     dispatch(setEnablePredict(allFilled));
 
   }, [inputValues]);
-
+  useEffect(() => {
+    if (tableRows.length > 0) {
+      recalculateTableRows(dependentValue,  previousDependentRef.current);
+      previousDependentRef.current = dependentValue
+    }
+  }, [dependentValue]);
   useEffect(() => {
     if (predictClicked) {
-      const predictedValue = calculatePredictedValue(inputValues);
+      const predictedValue = calculatePredictedValue(inputValues, dependentValue,  previousDependentRef.current);
 
       setTableRows(prevRows => [...prevRows, { ...inputValues, predictedValue }]);
       setInputValues({});
@@ -55,22 +60,47 @@ const TableForecast = ({ queryResults, numericFields }) => {
       dispatch(setRunTimePredictClick(false));
 
     } else if (runTimePredictClick) {
-      const predictedValue = calculatePredictedValue(inputValues);
+      const predictedValue = calculatePredictedValue(inputValues, dependentValue,  previousDependentRef.current);
 
       setPredictValue(predictedValue);
-      
+
     }
   }, [predictClicked, runTimePredictClick]);
 
-  const calculatePredictedValue = (inputValues) => {
-    const { intercept, coefficients } = formulaData;
-    let predictedValue = intercept;
-    for (let key in coefficients) {
-      predictedValue += coefficients[key] * inputValues[key];
-    }
-    return predictedValue.toFixed(2);
-  };
+  const calculatePredictedValue = (inputValues, dependent, previousDependent, previousPredictedValue = null) => {
 
+    const { intercept, coefficients } = formulaData;
+
+    if (dependent in coefficients) {
+      const previousValue = inputValues[previousDependent] !== undefined ? inputValues[previousDependent] : previousPredictedValue;
+      let total = (previousValue !== null ? previousValue : 0) - intercept;
+      for (let key in coefficients) {
+        if (key !== dependent) {
+          total -= coefficients[key] * inputValues[key];
+        }
+      }
+      return (total / coefficients[dependent]).toFixed(2);
+    } else {
+      let predictedValue = intercept;
+      for (let key in coefficients) {
+        predictedValue += coefficients[key] * inputValues[key];
+      }
+      return predictedValue.toFixed(2);
+    }
+  };
+  const recalculateTableRows = (newDependent, previousDependent) => {
+    setTableRows(prevRows =>
+      prevRows.map(row => {
+        const previousPredictedValue = row.predictedValue;
+        const updatedRow = { ...row };
+        updatedRow[previousDependent] = previousPredictedValue;
+        const newPredictedValue = calculatePredictedValue(updatedRow, newDependent, previousDependent, previousPredictedValue);
+        updatedRow[newDependent] = newPredictedValue;
+        updatedRow.predictedValue = newPredictedValue;
+        return updatedRow;
+      })
+    );
+  };
   const renderInputField = (item) => {
     const handleInputChange = (e) => {
       const value = e.target.value;
@@ -120,10 +150,10 @@ const TableForecast = ({ queryResults, numericFields }) => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              <TableCell>{dependent}</TableCell>
+              <TableCell>{dependentValue}</TableCell>
               {numericFields.map(
                 (column, index) =>
-                  column.reference !== dependent && (
+                  column.reference !== dependentValue && (
                     <TableCell key={index} align="center">
                       {column.reference}
                     </TableCell>

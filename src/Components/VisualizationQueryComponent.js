@@ -20,7 +20,7 @@ import { setForecastOpen } from "../Features/forecastOpenSlice";
 import { setChatOpen } from "../Features/chatOpenSlice";
 import TabularReport from "../Components/TabularReport/TabularReport";
 import AppliedFilters from "../Utilities/AppliedFilters";
-import RightPanel from "./RightPanel/RightPanel";
+import RightPanel from "./EdaRightPanel/RightPanel";
 import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 import { setGlobalDependent } from "../Features/dependentSlice";
 
@@ -35,8 +35,8 @@ const VisualizationQueryComponent = () => {
   const [currentSelection, setCurrentSelection] = useState([]);
   const [panelContent, setPanelContent] = useState({});
   const [panelOption, setPanelOption] = useState("");
-  // const [anomalies, setAnomalies] = useState({});
-  const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(true);
+  const [anomalies, setAnomalies] = useState({});
+  const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(false);
   const dispatch = useDispatch();
 
   const { forecastOpen } = useSelector((state) => state.forecastOpen);
@@ -166,41 +166,41 @@ const VisualizationQueryComponent = () => {
         ]
     }
 }`;
-  const parsedData = JSON.parse(rawData);
-  const anomalies = parsedData;
+  // const parsedData = JSON.parse(rawData);
+  // const anomalies = parsedData;
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
     .map(() => new Array());
-  // const sendDataToEDA = () => {
-  //   axios({
-  //     url: "http://10.97.103.197:8000/eda/",
-  //     method: "post",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Accept: "application/json",
-  //     },
-  //     data: JSON.stringify({
-  //       columns: queryResults?.dataset?.fields?.map((field) => field.reference),
-  //       data: queryResults?.dataset?.rows,
-  //     }),
-  //   })
-  //     .then(({ data }) => {
-  //       if (data.Response.Message) {
-  //         setAnomalies(data.Response.Message);
-  //       } else {
-  //         setAnomalies(JSON.parse(data.Response));
-  //       }
-  //       setIsAnomalyLoaded(true);
-  //     })
-  //     .catch((e) => {
-  //       console.log(e);
-  //     });
-  // };
-  // useEffect(() => {
-  //   if (queryResults) {
-  //     sendDataToEDA();
-  //   }
-  // }, [queryResults]);
+  const sendDataToEDA = () => {
+    axios({
+      url: "http://10.118.29.163:8000/eda/",
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      data: JSON.stringify({
+        columns: queryResults?.dataset?.fields?.map((field) => field.reference),
+        data: queryResults?.dataset?.rows,
+      }),
+    })
+      .then(({ data }) => {
+        if (data.Response.Message) {
+          setAnomalies(data.Response.Message);
+        } else {
+          setAnomalies(JSON.parse(data.Response));
+        }
+        setIsAnomalyLoaded(true);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+  useEffect(() => {
+    if (queryResults) {
+      sendDataToEDA();
+    }
+  }, [queryResults]);
   useEffect(() => {
     const executeQuery = async () => {
       const { data } = await axios({
@@ -337,7 +337,7 @@ const VisualizationQueryComponent = () => {
           <div className="filter-dropdowns">
             {!isLoading && isAnomalyLoaded && isQueryExecutedSuccessfully && (
               <Box sx={{ width: "100%" }}>
-                <FormControl sx={{ minWidth: 200, m: 1 }}>
+                <FormControl sx={{ minWidth: 200, m: 1}}>
                   <InputLabel id="filter-column">Select column</InputLabel>
                   <Select
                     labelId="filter-column"
@@ -348,7 +348,17 @@ const VisualizationQueryComponent = () => {
                     onChange={handleFilterColumn}
                     input={<OutlinedInput label="Select column" />}
                     renderValue={(selected) => selected.join(", ")}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          maxHeight: 300, // Adjust height as needed
+                          position: "relative",
+                          maxWidth: 200,
+                        },
+                      },
+                    }}
                   >
+                    
                     {originalData.dataset.fields.map((option, index) => (
                       <MenuItem key={index} value={option.reference}>
                         <Checkbox
@@ -382,7 +392,7 @@ const VisualizationQueryComponent = () => {
                     className="btn anomaly-btn"
                     onClick={toggleRightPanel(true, "anomalies", anomalies)}
                   >
-                    View all anomalies ({Object.keys(anomalies.anomaly).length})
+                    View all anomalies ({anomalies.total_outliers})
                   </Button>
                 )}
 

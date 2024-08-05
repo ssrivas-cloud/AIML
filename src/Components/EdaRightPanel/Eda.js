@@ -4,7 +4,7 @@
 */
 
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableRow, Modal, Typography, TextField, IconButton, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableHead, TableRow, Modal, Typography, TextField, IconButton, Button, TableContainer } from '@mui/material';
 
 const Eda = ({ panelContent }) => {
   const description = panelContent?.description
@@ -73,8 +73,8 @@ const Eda = ({ panelContent }) => {
     <>
       <div className='eda-wrapper'>
         <h4>Anomalies</h4>
-
-        <Table>
+        <TableContainer className='anomalies-table-wrapper'>
+        <Table stickyHeader >
           <TableHead>
             <TableRow>
               {renderTableHeaders()}
@@ -84,6 +84,7 @@ const Eda = ({ panelContent }) => {
             {renderTableData()}
           </TableBody>
         </Table>
+        </TableContainer>
         <h4> Descriptive statistics</h4>
         <Table >
           <TableHead>

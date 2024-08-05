@@ -7,8 +7,8 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Box, FormControl, InputLabel, Select, MenuItem, ListItemText, OutlinedInput, TableContainer, Paper } from '@mui/material';
 import CardComponent from './CardComponent';
-import AppliedFilters from '../../Utilities/AppliedFilters';
-import Dropdown from '../../Utilities/Dropdown';
+import AppliedFilters from '../../../Utilities/AppliedFilters';
+import Dropdown from '../../../Utilities/Dropdown';
 const LinearRegression = ({ fields, rows, dataBycolumn }) => {
 
     const [dependantField, setDependantField] = useState('')
