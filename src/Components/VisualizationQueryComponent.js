@@ -37,6 +37,7 @@ const VisualizationQueryComponent = () => {
   const [panelOption, setPanelOption] = useState("");
   const [anomalies, setAnomalies] = useState({});
   const [isAnomalyLoaded, setIsAnomalyLoaded] = useState(false);
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
 
   const { forecastOpen } = useSelector((state) => state.forecastOpen);
@@ -272,7 +273,7 @@ const VisualizationQueryComponent = () => {
       };
     });
     setShowFilters(true);
-
+    handleClose();
     // send Delete request to the backend and handle the response
     fetchBackendDataFromApi("DELETE", "/delete-questions-answers/")
       .then(() => {
@@ -330,6 +331,8 @@ const VisualizationQueryComponent = () => {
     });
     setShowFilters(true);
   };
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   return (
     <section className="container-fluid h-100 query-component">
       <div className="row h-100">
@@ -337,7 +340,7 @@ const VisualizationQueryComponent = () => {
           <div className="filter-dropdowns">
             {!isLoading && isAnomalyLoaded && isQueryExecutedSuccessfully && (
               <Box sx={{ width: "100%" }}>
-                <FormControl sx={{ minWidth: 200, m: 1}}>
+                <FormControl sx={{ minWidth: 200, m: 1 }}>
                   <InputLabel id="filter-column">Select column</InputLabel>
                   <Select
                     labelId="filter-column"
@@ -348,6 +351,9 @@ const VisualizationQueryComponent = () => {
                     onChange={handleFilterColumn}
                     input={<OutlinedInput label="Select column" />}
                     renderValue={(selected) => selected.join(", ")}
+                    open={open}
+                    onOpen={handleOpen}
+                    onClose={handleClose}
                     MenuProps={{
                       PaperProps: {
                         sx: {
