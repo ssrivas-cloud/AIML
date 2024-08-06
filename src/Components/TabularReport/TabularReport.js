@@ -15,7 +15,7 @@ import {
   TableRow,
   Box,
   TableContainer,
-  Paper
+  Paper,
 } from "@mui/material";
 import Chatbot from "../Chatbot/Chatbot";
 import RegressionAnalysisPopup from "../Forecast/RegressionAnalysisPopup";
@@ -72,9 +72,6 @@ const TabularReport = ({
       anomalyValues[key].includes(Number(cell) || cell.toString())
     );
   };
-  useEffect(() => {
-    dispatch(setGlobalDataset({ headerNames: headerName, dataRows: rows }));
-  }, [dispatch, headerName, rows]);
 
   return (
     <div className="tabular-report-wrapper">
