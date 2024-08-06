@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -32,7 +32,8 @@ const TableForecast = ({ queryResults, numericFields }) => {
   const runTimePredictClick = useSelector((state) => state.forecastRegression.runTimePredictClick);
 
   const formulaData = useSelector((state) => state.forecastRegression.regressionOutput);
-  const previousDependentRef = useRef(dependentValue);
+  const originalDependentValue = useSelector((state) => state.forecastRegression.originalDependentValue);
+  const [dynamicPreviousDependent, setDynamicPreviousDependent] = useState(originalDependentValue);
   useEffect(() => {
     const allFilled = forecastFields.every(field => {
       const value = inputValues[field.reference];
@@ -43,14 +44,19 @@ const TableForecast = ({ queryResults, numericFields }) => {
 
   }, [inputValues]);
   useEffect(() => {
+    setInputValues({});
+    setPredictValue('-');
+    dispatch(setEnablePredict(false));
+    dispatch(setPredictClicked(false));
+    dispatch(setRunTimePredictClick(false));
+    setDynamicPreviousDependent(dependentValue);
     if (tableRows.length > 0) {
-      recalculateTableRows(dependentValue,  previousDependentRef.current);
-      previousDependentRef.current = dependentValue
+      recalculateTableRows(dependentValue, originalDependentValue, dynamicPreviousDependent);
     }
   }, [dependentValue]);
   useEffect(() => {
     if (predictClicked) {
-      const predictedValue = calculatePredictedValue(inputValues, dependentValue,  previousDependentRef.current);
+      const predictedValue = calculatePredictedValue(inputValues, dependentValue, originalDependentValue);
 
       setTableRows(prevRows => [...prevRows, { ...inputValues, predictedValue }]);
       setInputValues({});
@@ -60,12 +66,10 @@ const TableForecast = ({ queryResults, numericFields }) => {
       dispatch(setRunTimePredictClick(false));
 
     } else if (runTimePredictClick) {
-      const predictedValue = calculatePredictedValue(inputValues, dependentValue,  previousDependentRef.current);
-
+      const predictedValue = calculatePredictedValue(inputValues, dependentValue, originalDependentValue);
       setPredictValue(predictedValue);
-
     }
-  }, [predictClicked, runTimePredictClick]);
+  }, [predictClicked, runTimePredictClick, inputValues]);
 
   const calculatePredictedValue = (inputValues, dependent, previousDependent, previousPredictedValue = null) => {
 
@@ -88,18 +92,22 @@ const TableForecast = ({ queryResults, numericFields }) => {
       return predictedValue.toFixed(2);
     }
   };
-  const recalculateTableRows = (newDependent, previousDependent) => {
+  const recalculateTableRows = (newDependent, originalPreviousDependent, dynamicPreviousDependent) => {
     setTableRows(prevRows =>
       prevRows.map(row => {
         const previousPredictedValue = row.predictedValue;
         const updatedRow = { ...row };
-        updatedRow[previousDependent] = previousPredictedValue;
-        const newPredictedValue = calculatePredictedValue(updatedRow, newDependent, previousDependent, previousPredictedValue);
+        updatedRow[dynamicPreviousDependent] = previousPredictedValue;
+        const newPredictedValue = calculatePredictedValue(updatedRow, newDependent, originalPreviousDependent, previousPredictedValue);
         updatedRow[newDependent] = newPredictedValue;
         updatedRow.predictedValue = newPredictedValue;
         return updatedRow;
       })
     );
+    setInputValues(prevValues => {
+      const { [dynamicPreviousDependent]: _, ...updatedValues } = prevValues;
+      return updatedValues;
+    });
   };
   const renderInputField = (item) => {
     const handleInputChange = (e) => {
@@ -109,6 +117,14 @@ const TableForecast = ({ queryResults, numericFields }) => {
         ...prevValues,
         [reference]: value
       }));
+    };
+    const handleInputFocus = (e) => {
+      if (e.target.value === '0') {
+        setInputValues(prevValues => ({
+          ...prevValues,
+          [item.reference]: '',
+        }));
+      }
     };
     switch (item.type) {
       case 'string':
@@ -126,7 +142,7 @@ const TableForecast = ({ queryResults, numericFields }) => {
       case 'integer':
       case 'bigDecimal':
         return (
-          <TextField type="number" value={inputValues[item.reference] || 0} onChange={handleInputChange} />
+          <TextField type="number" value={inputValues[item.reference] !== undefined ? inputValues[item.reference] : 0} onChange={handleInputChange} onFocus={handleInputFocus} />
         );
       case 'date':
         return (

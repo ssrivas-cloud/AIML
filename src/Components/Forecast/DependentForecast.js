@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { setDependentValue } from "../../Features/forecastRegressionSlice";
-const DependentForecast = ({ queryResults, numericFields }) => {
+const DependentForecast = ({ numericFields }) => {
   const dependentValue  = useSelector((state) => state.forecastRegression.dependentValue);
   const dispatch = useDispatch();
   const handleDependentChange = (e) => {
