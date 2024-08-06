@@ -23,6 +23,7 @@ import AppliedFilters from "../Utilities/AppliedFilters";
 import RightPanel from "./EdaRightPanel/RightPanel";
 import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 import { setGlobalDependent } from "../Features/dependentSlice";
+import { setGlobalDataset } from "../Features/globalDatasetSlice";
 
 const VisualizationQueryComponent = () => {
   const [queryResults, setQueryResults] = useState(null);
@@ -41,6 +42,9 @@ const VisualizationQueryComponent = () => {
   const dispatch = useDispatch();
 
   const { forecastOpen } = useSelector((state) => state.forecastOpen);
+  const data = useSelector((state) => state.globalDataset);
+
+  console.log(data);
 
   const selectedVisualization = useSelector(
     (state) => state.visualization.selectedVisualization
@@ -174,7 +178,7 @@ const VisualizationQueryComponent = () => {
     .map(() => new Array());
   const sendDataToEDA = () => {
     axios({
-      url: "http://10.118.29.163:8000/eda/",
+      url: "http://localhost:8000/eda/",
       method: "post",
       headers: {
         "Content-Type": "application/json",
@@ -214,17 +218,17 @@ const VisualizationQueryComponent = () => {
         data: fieldsOfSelectedVisualization.query
           ? fieldsOfSelectedVisualization
           : {
-            query: {
-              select: {
-                fieldsOfSelectedVisualization,
+              query: {
+                select: {
+                  fieldsOfSelectedVisualization,
+                },
+              },
+              dataSource: {
+                reference: {
+                  uri: selectedVisualization.uri,
+                },
               },
             },
-            dataSource: {
-              reference: {
-                uri: selectedVisualization.uri,
-              },
-            },
-          },
       });
       return data;
     };
@@ -289,17 +293,17 @@ const VisualizationQueryComponent = () => {
 
   const toggleRightPanel =
     (open, panelOption = null, content) =>
-      (event) => {
-        if (
-          event.type === "keydown" &&
-          (event.key === "Tab" || event.key === "Shift")
-        ) {
-          return;
-        }
-        setRightPanelOpen(open);
-        setPanelOption(panelOption);
-        setPanelContent(content);
-      };
+    (event) => {
+      if (
+        event.type === "keydown" &&
+        (event.key === "Tab" || event.key === "Shift")
+      ) {
+        return;
+      }
+      setRightPanelOpen(open);
+      setPanelOption(panelOption);
+      setPanelContent(content);
+    };
   const handleReset = () => {
     forecastOpen && dispatch(setForecastOpen(false));
     dispatch(setGlobalDependent(""));
@@ -331,6 +335,21 @@ const VisualizationQueryComponent = () => {
     });
     setShowFilters(true);
   };
+
+  useEffect(() => {
+    let headerName = [];
+    headerName.push(
+      queryResults?.dataset?.fields?.map((column) => column.reference)
+    );
+    console.log(headerName);
+    dispatch(
+      setGlobalDataset({
+        headerNames: headerName[0],
+        dataRows: queryResults?.dataset?.rows,
+      })
+    );
+  }, [queryResults]);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   return (
@@ -364,7 +383,6 @@ const VisualizationQueryComponent = () => {
                       },
                     }}
                   >
-                    
                     {originalData.dataset.fields.map((option, index) => (
                       <MenuItem key={index} value={option.reference}>
                         <Checkbox

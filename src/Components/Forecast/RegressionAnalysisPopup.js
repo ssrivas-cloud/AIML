@@ -17,13 +17,18 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { setForecastOpen } from "../../Features/forecastOpenSlice";
 import { useDispatch } from "react-redux";
-import { setRegressionOutput, setToolTipValue,setDependentValue, setOriginalDependentValue } from "../../Features/forecastRegressionSlice";
+import {
+  setRegressionOutput,
+  setToolTipValue,
+  setDependentValue,
+  setOriginalDependentValue,
+} from "../../Features/forecastRegressionSlice";
 const RegressionAnalysisPopup = ({
   fields,
   openDialog,
   setOpenDialog,
   handleCloseDialog,
-  dataBycolumn
+  dataBycolumn,
 }) => {
   const [dependentField, setDependantField] = useState("");
   const dispatch = useDispatch();
@@ -32,43 +37,50 @@ const RegressionAnalysisPopup = ({
     setDependantField(event.target.value);
   };
   const sendDataToPredict = () => {
-    const dataSendToserver = {}
-    const independentFieldsData = {}
+    const dataSendToserver = {};
+    const independentFieldsData = {};
     // calculate dependant field data
-    const dependentFieldIndex = fields.findIndex(obj => obj.reference === dependentField);
-    dataSendToserver.dependentField = { [dependentField]: dataBycolumn[dependentFieldIndex] }
+    const dependentFieldIndex = fields.findIndex(
+      (obj) => obj.reference === dependentField
+    );
+    dataSendToserver.dependentField = {
+      [dependentField]: dataBycolumn[dependentFieldIndex],
+    };
 
     numericFields.forEach((field, index) => {
-      const independentFieldIndex = fields.findIndex(obj => obj.reference === field.reference);
+      const independentFieldIndex = fields.findIndex(
+        (obj) => obj.reference === field.reference
+      );
       if (field.reference !== dependentField) {
-        independentFieldsData[field.reference] = dataBycolumn[independentFieldIndex];
+        independentFieldsData[field.reference] =
+          dataBycolumn[independentFieldIndex];
       }
     });
-    dataSendToserver.independentFields = independentFieldsData
+    dataSendToserver.independentFields = independentFieldsData;
 
-
-    console.log(dataSendToserver)
     axios({
-      url: 'http://10.118.29.163:8000/regression/',
-      method: 'post',
+      url: "http://localhost:8000/regression/",
+      method: "post",
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-      data: dataSendToserver
-    }).then(({ data }) => {
-      const parsedData = JSON.parse(data.Response);
-      dispatch(setRegressionOutput(parsedData))
-      const { intercept, coefficients } = parsedData;
-      let formula = `Price = ${intercept.toFixed(2)}`;
-      for (let key in coefficients) {
-        formula += ` + ${coefficients[key].toFixed(2)} * ${key}`;
-      }
-      dispatch(setToolTipValue(formula))
-      // console.log('regression data => ', data.Response);
-    }).catch(e => {
-      console.error(e);
-    });
+      data: dataSendToserver,
+    })
+      .then(({ data }) => {
+        const parsedData = JSON.parse(data.Response);
+        dispatch(setRegressionOutput(parsedData));
+        const { intercept, coefficients } = parsedData;
+        let formula = `Price = ${intercept.toFixed(2)}`;
+        for (let key in coefficients) {
+          formula += ` + ${coefficients[key].toFixed(2)} * ${key}`;
+        }
+        dispatch(setToolTipValue(formula));
+        // console.log('regression data => ', data.Response);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
     // const output = '{"intercept": -6.2717298316973, "coefficients": {"malesales": 1.2624957864839115, "femalesales": 0.054596499453860414}}'
     // const parsedOutput = JSON.parse(output);
     // dispatch(setRegressionOutput(parsedOutput))
@@ -134,8 +146,8 @@ const RegressionAnalysisPopup = ({
         <div className="regression-analysis-wrapper">
           <FormControl>
             <RadioGroup
-              aria-labelledby='demo-controlled-radio-buttons-group'
-              name='controlled-radio-buttons-group'
+              aria-labelledby="demo-controlled-radio-buttons-group"
+              name="controlled-radio-buttons-group"
               value={dependentField}
               onChange={handleDependentVarChange}
             >

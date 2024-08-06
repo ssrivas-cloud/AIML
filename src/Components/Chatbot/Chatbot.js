@@ -17,6 +17,7 @@ const Chatbot = () => {
   const data = useSelector((state) => state.globalDataset);
   const cancelTokenSource = useRef(null);
   const dispatch = useDispatch();
+  console.log(data);
 
   const handleAskQuestions = (event) => {
     const newQuestion = { question: question.replace(/^[ \t]+|[ \t]+$/g, "") };
@@ -36,7 +37,7 @@ const Chatbot = () => {
 
     // create a new cancel token
     cancelTokenSource.current = axios.CancelToken.source();
-
+    setQuestion("");
     fetchBackendDataFromApi(
       "POST",
       "/post-question/",
