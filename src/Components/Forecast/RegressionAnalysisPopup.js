@@ -15,10 +15,9 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-// import { setGlobalDependent } from "../../Features/dependentSlice";
 import { setForecastOpen } from "../../Features/forecastOpenSlice";
-import { useDispatch,useSelector } from "react-redux";
-import { setRegressionOutput, setToolTipValue, setDependentValue } from "../../Features/forecastRegressionSlice";
+import { useDispatch } from "react-redux";
+import { setRegressionOutput, setToolTipValue,setDependentValue, setOriginalDependentValue } from "../../Features/forecastRegressionSlice";
 const RegressionAnalysisPopup = ({
   fields,
   openDialog,
@@ -27,7 +26,6 @@ const RegressionAnalysisPopup = ({
   dataBycolumn
 }) => {
   const [dependentField, setDependantField] = useState("");
-  // const dependentValue = useSelector((state) => state.forecastRegression.dependentValue);
   const dispatch = useDispatch();
   const numericFields = fields?.filter((field) => field.type !== "string");
   const handleDependentVarChange = (event) => {
@@ -49,7 +47,7 @@ const RegressionAnalysisPopup = ({
     dataSendToserver.independentFields = independentFieldsData
 
 
-    // console.log(dataSendToserver)
+    console.log(dataSendToserver)
     axios({
       url: 'http://10.118.29.163:8000/regression/',
       method: 'post',
@@ -83,6 +81,8 @@ const RegressionAnalysisPopup = ({
   };
   const handleForecastEquation = () => {
     dispatch(setDependentValue(dependentField));
+    dispatch(setOriginalDependentValue(dependentField));
+
     dispatch(setForecastOpen(true));
     setOpenDialog(false);
     setDependantField("");
