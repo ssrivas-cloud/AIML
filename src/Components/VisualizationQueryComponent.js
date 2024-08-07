@@ -176,30 +176,25 @@ const VisualizationQueryComponent = () => {
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
     .map(() => new Array());
+  
   const sendDataToEDA = () => {
-    axios({
-      url: "http://localhost:8000/eda/",
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      data: JSON.stringify({
-        columns: queryResults?.dataset?.fields?.map((field) => field.reference),
-        data: queryResults?.dataset?.rows,
-      }),
+    const dataforEDA=JSON.stringify({
+      columns: queryResults?.dataset?.fields?.map((field) => field.reference),
+      data: queryResults?.dataset?.rows,
     })
-      .then(({ data }) => {
-        if (data.Response.Message) {
-          setAnomalies(data.Response.Message);
-        } else {
-          setAnomalies(JSON.parse(data.Response));
-        }
-        setIsAnomalyLoaded(true);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    fetchBackendDataFromApi("POST", "/eda/" ,dataforEDA)
+    .then((data) => {
+      if (data.Response.Message) {
+        setAnomalies(data.Response.Message);
+      } else {
+        setAnomalies(JSON.parse(data.Response));
+      }
+      setIsAnomalyLoaded(true);
+    })
+    .catch((error) => {
+      console.error("Error deleting questions and answers:", error);
+    });
+
   };
   useEffect(() => {
     if (queryResults) {
