@@ -4,6 +4,7 @@
  */
 import axios from "axios";
 import React, { useState } from "react";
+import { fetchBackendDataFromApi } from "../../Utilities/backendApi";
 import {
   Dialog,
   DialogTitle,
@@ -58,29 +59,23 @@ const RegressionAnalysisPopup = ({
     });
     dataSendToserver.independentFields = independentFieldsData;
 
-    axios({
-      url: "http://localhost:8000/regression/",
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      data: dataSendToserver,
+    console.log(dataSendToserver)
+    fetchBackendDataFromApi("POST", "/regression/", dataSendToserver)
+    .then((data) => {
+      const parsedData = JSON.parse(data.Response);
+      dispatch(setRegressionOutput(parsedData))
+      const { intercept, coefficients } = parsedData;
+      let formula = `Price = ${intercept.toFixed(2)}`;
+      for (let key in coefficients) {
+        formula += ` + ${coefficients[key].toFixed(2)} * ${key}`;
+      }
+      dispatch(setToolTipValue(formula))
     })
-      .then(({ data }) => {
-        const parsedData = JSON.parse(data.Response);
-        dispatch(setRegressionOutput(parsedData));
-        const { intercept, coefficients } = parsedData;
-        let formula = `Price = ${intercept.toFixed(2)}`;
-        for (let key in coefficients) {
-          formula += ` + ${coefficients[key].toFixed(2)} * ${key}`;
-        }
-        dispatch(setToolTipValue(formula));
-        // console.log('regression data => ', data.Response);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
+    .catch((error) => {
+      console.error(error);
+    });
+
+
     // const output = '{"intercept": -6.2717298316973, "coefficients": {"malesales": 1.2624957864839115, "femalesales": 0.054596499453860414}}'
     // const parsedOutput = JSON.parse(output);
     // dispatch(setRegressionOutput(parsedOutput))
