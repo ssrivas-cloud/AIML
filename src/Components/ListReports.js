@@ -21,7 +21,9 @@ const ListReports = () => {
   }, [dispatch]);
 
   const handleChange = (event) => {
-    dispatch(setSelectedVisualization(event.target.value));
+    const selectedReportId  = event.target.value;
+    const selectedReport = reportList.find(report => report.label === selectedReportId);
+    dispatch(setSelectedVisualization(selectedReport));
     dispatch(setForecastOpen(false));
 
     // send delete request to the backend and handle response
@@ -45,12 +47,12 @@ const ListReports = () => {
         <Select
           labelId="report-select-label"
           id="report-select"
-          value={selectedVisualization}
+          value={selectedVisualization?.label || ""}
           label="Report"
           onChange={handleChange}
         >
           {reportList.map((report) => (
-            <MenuItem key={report.version} value={report}>
+            <MenuItem key={report.creationDate} value={report.label}>
               {report.label}
             </MenuItem>
           ))}

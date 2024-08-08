@@ -7,9 +7,9 @@ const forecastRegressionSlice = createSlice({
     dependentValue:'',
     originalDependentValue:'',
     enablePredict:false,
-    predictClicked:false,
+    addToList:false,
     regressionOutput:null,
-    runTimePredictClick:false,
+    predictClick:false,
     toolTipValue:null
   },
   reducers: {
@@ -22,11 +22,11 @@ const forecastRegressionSlice = createSlice({
     setEnablePredict: (state, action) => {
       state.enablePredict = action.payload;
     },
-    setPredictClicked: (state, action) => {
-      state.predictClicked = action.payload;
+    setAddToList: (state, action) => {
+      state.addToList = action.payload;
     },
-    setRunTimePredictClick: (state, action) => {
-      state.runTimePredictClick = action.payload;
+    setPredictClick: (state, action) => {
+      state.predictClick = action.payload;
     },
     setRegressionOutput: (state, action) => {
       state.regressionOutput = action.payload;
@@ -36,5 +36,5 @@ const forecastRegressionSlice = createSlice({
     },
   },
 });
-export const { setEnablePredict,setPredictClicked,setRegressionOutput,setRunTimePredictClick,setToolTipValue, setDependentValue, setOriginalDependentValue } = forecastRegressionSlice.actions;
+export const { setEnablePredict,setAddToList,setRegressionOutput,setPredictClick,setToolTipValue, setDependentValue, setOriginalDependentValue } = forecastRegressionSlice.actions;
 export default forecastRegressionSlice.reducer;

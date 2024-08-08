@@ -17,8 +17,8 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import { useSelector, useDispatch } from "react-redux";
 import {
   setEnablePredict,
-  setPredictClicked,
-  setRunTimePredictClick
+  setAddToList,
+  setPredictClick
 } from "../../Features/forecastRegressionSlice";
 
 const TableForecast = ({ queryResults, numericFields }) => {
@@ -28,8 +28,8 @@ const TableForecast = ({ queryResults, numericFields }) => {
   const dependentValue = useSelector((state) => state.forecastRegression.dependentValue);
   const dispatch = useDispatch();
   const forecastFields = queryResults.dataset.fields.filter(item => item.reference !== dependentValue && item.type !== 'string');
-  const predictClicked = useSelector((state) => state.forecastRegression.predictClicked);
-  const runTimePredictClick = useSelector((state) => state.forecastRegression.runTimePredictClick);
+  const addToList = useSelector((state) => state.forecastRegression.addToList);
+  const predictClick = useSelector((state) => state.forecastRegression.predictClick);
 
   const formulaData = useSelector((state) => state.forecastRegression.regressionOutput);
   const originalDependentValue = useSelector((state) => state.forecastRegression.originalDependentValue);
@@ -47,29 +47,30 @@ const TableForecast = ({ queryResults, numericFields }) => {
     setInputValues({});
     setPredictValue('-');
     dispatch(setEnablePredict(false));
-    dispatch(setPredictClicked(false));
-    dispatch(setRunTimePredictClick(false));
+    dispatch(setAddToList(false));
+    dispatch(setPredictClick(false));
     setDynamicPreviousDependent(dependentValue);
     if (tableRows.length > 0) {
       recalculateTableRows(dependentValue, originalDependentValue, dynamicPreviousDependent);
     }
   }, [dependentValue]);
   useEffect(() => {
-    if (predictClicked) {
+    if (addToList) {
       const predictedValue = calculatePredictedValue(inputValues, dependentValue, originalDependentValue);
 
       setTableRows(prevRows => [...prevRows, { ...inputValues, predictedValue }]);
       setInputValues({});
       dispatch(setEnablePredict(false));
-      dispatch(setPredictClicked(false));
+      dispatch(setAddToList(false));
       setPredictValue('-');
-      dispatch(setRunTimePredictClick(false));
+      dispatch(setPredictClick(false));
 
-    } else if (runTimePredictClick) {
+    } else if (predictClick) {
       const predictedValue = calculatePredictedValue(inputValues, dependentValue, originalDependentValue);
       setPredictValue(predictedValue);
+      dispatch(setPredictClick(false));
     }
-  }, [predictClicked, runTimePredictClick, inputValues]);
+  }, [addToList, predictClick, inputValues]);
 
   const calculatePredictedValue = (inputValues, dependent, previousDependent, previousPredictedValue = null) => {
 

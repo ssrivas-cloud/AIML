@@ -4,18 +4,45 @@ import { Box, Typography, Tooltip  } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import TableForecast from "./TableForecast";
 import { useSelector, useDispatch } from "react-redux";
-import { setPredictClicked, setRunTimePredictClick } from "../../Features/forecastRegressionSlice";
+import { setAddToList, setPredictClick } from "../../Features/forecastRegressionSlice";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 const DependentPredict = ({ queryResults, numericFields }) => {
   const enablePredict = useSelector((state) => state.forecastRegression.enablePredict);
   const toolTipValue  = useSelector((state) => state.forecastRegression.toolTipValue);
 
   const dispatch = useDispatch();
   const handlePredictClick = () => {
-    dispatch(setRunTimePredictClick(true));
+    dispatch(setPredictClick(true));
   };
   const handleAddClick = () => {
-    dispatch(setPredictClicked(true));
+    dispatch(setAddToList(true));
   };
+  const handleDownloadPdf = () => {
+    const input = document.getElementById("table-forecast");
+
+    html2canvas(input, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save("forecast-comparison.pdf");
+    });
+  }
   return (
     <>
       <Box sx={{ minWidth: 500, maxWidth: "100%" }}>
@@ -28,7 +55,7 @@ const DependentPredict = ({ queryResults, numericFields }) => {
         >
           <Box sx={{ display: "flex", flexDirection: "column", gap: "5px" }}>
             <Typography variant="h5">
-              Forecast and comparison <DownloadPredict />
+              Forecast and comparison <DownloadPredict onClick={handleDownloadPdf} style={{cursor:"pointer"}}/>
             </Typography>
             <Typography variant="body2">
               Change the independent variable to forecast the prediction
@@ -67,7 +94,7 @@ const DependentPredict = ({ queryResults, numericFields }) => {
           </Box>
         </Box>
 
-        <Box>
+        <Box id="table-forecast">
           <TableForecast
             queryResults={queryResults}
             numericFields={numericFields}
