@@ -117,6 +117,20 @@ Table {
   >div{
       max-width: 250px;
   }
+  >div.breadcrumb-wrapper{
+    max-width: 100%;
+    >div.breadcrumb-content{
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      nav>ol>li>a{
+       color: #0076AD;
+      }
+      >button{
+        padding-left: 0;
+      }
+    }
+  }
 }
 
 .applied-filters {

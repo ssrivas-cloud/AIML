@@ -42,10 +42,6 @@ const VisualizationQueryComponent = () => {
   const dispatch = useDispatch();
 
   const { forecastOpen } = useSelector((state) => state.forecastOpen);
-  const data = useSelector((state) => state.globalDataset);
-
-  console.log(data);
-
   const selectedVisualization = useSelector(
     (state) => state.visualization.selectedVisualization
   );
@@ -336,7 +332,6 @@ const VisualizationQueryComponent = () => {
     headerName.push(
       queryResults?.dataset?.fields?.map((column) => column.reference)
     );
-    console.log(headerName);
     dispatch(
       setGlobalDataset({
         headerNames: headerName[0],
