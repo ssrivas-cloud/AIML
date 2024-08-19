@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://10.242.36.46:8000";
+// const BASE_URL = "http://10.242.36.46:8000";
+const BASE_URL = "http://localhost:8000";
 const headers = {
   "Content-Type": "application/json",
   Accept: "application/json",

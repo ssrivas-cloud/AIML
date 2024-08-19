@@ -7,6 +7,7 @@ import chatOpenReducer from "./Features/chatOpenSlice";
 import dependentReducer from "./Features/dependentSlice";
 import forecastOpenReducer from "./Features/forecastOpenSlice";
 import forecastRegressionReducer from "./Features/forecastRegressionSlice";
+import advanceFiltersReducer from "./Features/advanceFilterSlice";
 
 const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ const store = configureStore({
     dependent: dependentReducer,
     forecastOpen: forecastOpenReducer,
     forecastRegression: forecastRegressionReducer,
+    advanceFilters: advanceFiltersReducer,
   },
 });
 

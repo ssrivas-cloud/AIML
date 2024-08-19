@@ -172,25 +172,24 @@ const VisualizationQueryComponent = () => {
   const dataBycolumn = new Array(queryResults?.dataset?.fields?.length)
     .fill(null)
     .map(() => new Array());
-  
+
   const sendDataToEDA = () => {
-    const dataforEDA=JSON.stringify({
+    const dataforEDA = JSON.stringify({
       columns: queryResults?.dataset?.fields?.map((field) => field.reference),
       data: queryResults?.dataset?.rows,
-    })
-    fetchBackendDataFromApi("POST", "/eda/" ,dataforEDA)
-    .then((data) => {
-      if (data.Response.Message) {
-        setAnomalies(data.Response.Message);
-      } else {
-        setAnomalies(JSON.parse(data.Response));
-      }
-      setIsAnomalyLoaded(true);
-    })
-    .catch((error) => {
-      console.error("Error deleting questions and answers:", error);
     });
-
+    fetchBackendDataFromApi("POST", "/eda/", dataforEDA)
+      .then((data) => {
+        if (data.Response.Message) {
+          setAnomalies(data.Response.Message);
+        } else {
+          setAnomalies(JSON.parse(data.Response));
+        }
+        setIsAnomalyLoaded(true);
+      })
+      .catch((error) => {
+        console.error("Error deleting questions and answers:", error);
+      });
   };
   useEffect(() => {
     if (queryResults) {

@@ -21,6 +21,9 @@ import Chatbot from "../Chatbot/Chatbot";
 import RegressionAnalysisPopup from "../Forecast/RegressionAnalysisPopup";
 import Forecast from "../Forecast/Forecast";
 
+// importing the respective filters function
+import { filterRows } from "../../Utilities/filteringLogic";
+
 const TabularReport = ({
   fields,
   rows,
@@ -31,6 +34,8 @@ const TabularReport = ({
   const [openDialog, setOpenDialog] = useState(false);
   const { chatOpen } = useSelector((state) => state.chatOpen);
   const { forecastOpen } = useSelector((state) => state.forecastOpen);
+  const { filters } = useSelector((state) => state.advanceFilters);
+
   const dispatch = useDispatch();
   const anomalyValues = {};
   const headerName = [];
@@ -73,6 +78,8 @@ const TabularReport = ({
     );
   };
 
+  const filteredRows = filters.length > 0 ? filterRows(rows, filters) : rows;
+
   return (
     <div className="tabular-report-wrapper">
       <Box sx={{ minWidth: 120, maxHeight: "50vh" }}>
@@ -94,7 +101,7 @@ const TabularReport = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row, index) => {
+                {filteredRows.map((row, index) => {
                   const isRowAnomaly = isAnomaly(row);
                   return (
                     <TableRow key={index}>
