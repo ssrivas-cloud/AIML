@@ -1,13 +1,49 @@
 .advance-filter {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  .filter-list {
+    overflow-y: auto;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
   h4 {
     font-weight: bold;
     margin-bottom: 20px;
   }
-  .filter-box {
+  .filter-component {
     background-color: #f9fafa;
-    border-radius: 8px;
     padding: 16px;
+    position: relative;
 
-    //
+    .filter-logic {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      .filter-logic-inputs {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+      }
+    }
+    .filter-box {
+      border-radius: 8px;
+
+      //
+    }
+  }
+
+  .filter-buttons {
+    margin-top: auto; /* Push filter-buttons to the bottom */
+  }
+
+  .css-10o2lyd-MuiStack-root {
+    overflow-y: hidden;
   }
 }

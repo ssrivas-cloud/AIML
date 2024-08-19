@@ -8,6 +8,8 @@ import { fetchBackendDataFromApi } from "../Utilities/backendApi";
 import { setForecastOpen } from "../Features/forecastOpenSlice";
 import { setGlobalDependent } from "../Features/dependentSlice";
 
+import { clearExistingFilters } from "../Features/advanceFilterSlice";
+
 const ListReports = () => {
   const dispatch = useDispatch();
   const { reportList, loading, error } = useSelector(
@@ -21,8 +23,10 @@ const ListReports = () => {
   }, [dispatch]);
 
   const handleChange = (event) => {
-    const selectedReportId  = event.target.value;
-    const selectedReport = reportList.find(report => report.label === selectedReportId);
+    const selectedReportId = event.target.value;
+    const selectedReport = reportList.find(
+      (report) => report.label === selectedReportId
+    );
     dispatch(setSelectedVisualization(selectedReport));
     dispatch(setForecastOpen(false));
 
@@ -36,6 +40,7 @@ const ListReports = () => {
       });
 
     dispatch(setGlobalDependent(""));
+    dispatch(clearExistingFilters());
   };
   return (
     <>

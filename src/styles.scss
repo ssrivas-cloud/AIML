@@ -2,6 +2,7 @@
 @import "./Components/EdaRightPanel/eda.scss";
 @import "./Components/TabularReport/tabularReport.scss";
 @import "./Components/Chatbot/chatbot.scss";
+@import "./Components//RightPanel/advanceFilter.scss";
 
 $primary-color: #0078ce;
 
@@ -114,8 +115,8 @@ Table {
 .app-section.list-report {
   width: 25vw;
   margin: 0 0 12px 24px;
-  >div{
-      max-width: 250px;
+  > div {
+    max-width: 250px;
   }
   >div.breadcrumb-wrapper{
     max-width: 100%;

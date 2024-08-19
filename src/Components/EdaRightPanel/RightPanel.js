@@ -7,14 +7,15 @@ import AdvanceFilter from "../RightPanel/AdvanceFilter";
 const RightPanel = ({ onOpen, handleEvent, panelOption, panelContent }) => {
   const handleClose = () => {
     handleEvent(false);
+    console.log("close");
   };
   return (
     <Drawer anchor="right" open={onOpen} onClose={handleClose}>
       <div
         role="presentation"
-        onClick={handleClose}
-        onKeyDown={handleClose}
-        style={{ width: 900, padding: 20 }}
+        // onClick={handleClose}
+        // onKeyDown={handleClose}
+        style={{ width: 900, padding: 20, height: "100vh" }}
       >
         <IconButton
           style={{ position: "absolute", top: 10, right: 10 }}
@@ -27,7 +28,7 @@ const RightPanel = ({ onOpen, handleEvent, panelOption, panelContent }) => {
           <Eda panelContent={panelContent} />
         ) : (
           <>
-            <AdvanceFilter />
+            <AdvanceFilter handleClose={handleClose} />
           </>
         )}
       </div>
