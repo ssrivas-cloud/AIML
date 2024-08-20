@@ -130,18 +130,21 @@ const FilterComponent = ({
     handleDeleteFilter(filter.id);
   }, [handleDeleteFilter, filter.id]);
 
-  const handleColumnChange = useCallback((value) => {
-    const sampleValue = convertDataTypes(data.dataRows[0][columnIndex]);
-    setFilterColumn(value);
-    setColumnConditions([]);
-    handleConditionsUpdateForNewColumn(
-      filter.id,
-      value,
-      columnIndex,
-      sampleValue,
-      []
-    );
-  }, []);
+  const handleColumnChange = useCallback(
+    (value) => {
+      const sampleValue = convertDataTypes(data.dataRows[0][columnIndex]);
+      setFilterColumn(value);
+      setColumnConditions([]);
+      handleConditionsUpdateForNewColumn(
+        filter.id,
+        value,
+        columnIndex,
+        sampleValue,
+        []
+      );
+    },
+    [columnIndex, data.dataRows, filter.id, handleConditionsUpdateForNewColumn]
+  );
 
   return (
     <>
