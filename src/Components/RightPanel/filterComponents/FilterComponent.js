@@ -13,12 +13,16 @@ const FilterComponent = ({
   filter,
   data,
   filtersCompo,
+  availableColumns,
   handleConditionsUpdate,
   handleConditionsUpdateForNewColumn,
   handleDeleteFilter,
 }) => {
   const [filterColumn, setFilterColumn] = useState(filter.columnName || null);
   const [selectedColumnData, setSelectedColumnData] = useState(null);
+  const [disabledColumns, setDisabledColumns] = useState(() =>
+    filter.columnConditions.length > 0 ? true : false
+  );
   const [columnConditions, setColumnConditions] = useState(() => {
     if (filterColumn) {
       if (filter.columnConditions && filter.columnConditions.length > 0) {
@@ -107,6 +111,8 @@ const FilterComponent = ({
           booleanValue: null,
         },
       ]);
+
+      setDisabledColumns(true);
     }
   }, [filterColumn, columnConditions, handleConditionsUpdate, filter.id]);
 
@@ -135,8 +141,9 @@ const FilterComponent = ({
           <SelectCoLogic
             name="Select Column"
             handleChange={handleColumnChange}
-            data={data.headerNames}
+            data={availableColumns}
             CoLogic={filter.columnName || filterColumn}
+            disabled={disabledColumns}
           />
           <div>
             {filtersCompo.length > 1 ||

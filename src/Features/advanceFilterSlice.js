@@ -22,18 +22,10 @@ const advanceFilterSlice = createSlice({
 
       // clearing the initial filters
       state.filters = [];
-      state.filters = newFilters;
+
       // add complete new filters
-      // newFilters?.map((filter, index) => {
-      //   state.filters[filter.indexOfColumn] = {
-      //     id: filter.id,
-      //     columnName: filter.columnName,
-      //     indexOfColumn: filter.indexOfColumn,
-      //     dataSample: filter.dataSample,
-      //     dataTypeOfValue: typeof filter.dataSample,
-      //     columnConditions: filter.columnConditions,
-      //   };
-      // });
+      const nFilters = newFilters.filter((filter) => filter.columnName);
+      state.filters = nFilters;
       // If the filter exists, update it
       // state.filters[columnIndex] = {
       //   index: columnIndex,

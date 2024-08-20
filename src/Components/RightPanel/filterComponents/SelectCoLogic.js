@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
-const SelectCoLogic = ({ name, handleChange, data, CoLogic }) => {
+const SelectCoLogic = ({ name, handleChange, data, CoLogic, disabled }) => {
   const [value, setValue] = useState(CoLogic); // Initialize state for the input value
 
   // Update local state when CoLogic prop changes
@@ -27,6 +27,7 @@ const SelectCoLogic = ({ name, handleChange, data, CoLogic }) => {
           value={value}
           label={name}
           onChange={handleInputChange}
+          disabled={disabled}
         >
           {/* <MenuItem value="">
             <em>None</em>
