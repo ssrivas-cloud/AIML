@@ -131,7 +131,16 @@ const FilterComponent = ({
   }, [handleDeleteFilter, filter.id]);
 
   const handleColumnChange = useCallback((value) => {
+    const sampleValue = convertDataTypes(data.dataRows[0][columnIndex]);
     setFilterColumn(value);
+    setColumnConditions([]);
+    handleConditionsUpdateForNewColumn(
+      filter.id,
+      value,
+      columnIndex,
+      sampleValue,
+      []
+    );
   }, []);
 
   return (
