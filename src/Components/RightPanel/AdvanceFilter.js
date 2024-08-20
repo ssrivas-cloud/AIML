@@ -10,7 +10,10 @@ import FilterComponent from "./filterComponents/FilterComponent";
 import { Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 
-import { addColumnFilters } from "../../Features/advanceFilterSlice";
+import {
+  addColumnFilters,
+  deleteExistingFilter,
+} from "../../Features/advanceFilterSlice";
 
 const AdvanceFilter = ({ handleClose }) => {
   const [applyFilter, setApplyFilter] = useState(false);
@@ -124,6 +127,7 @@ const AdvanceFilter = ({ handleClose }) => {
 
   const handleDeleteFilter = useCallback((filterID) => {
     // Update the state to remove the filter with the specified filterID
+    dispatch(deleteExistingFilter(filterID));
     setFiltersCompo((prevFiltersCompo) =>
       prevFiltersCompo.length > 1
         ? prevFiltersCompo.filter((filter) => filter.id !== filterID)

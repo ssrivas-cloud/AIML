@@ -48,6 +48,12 @@ const advanceFilterSlice = createSlice({
     clearExistingFilters: (state) => {
       state.filters = [];
     },
+    deleteExistingFilter: (state, action) => {
+      const nFilters = state.filters.filter(
+        (column) => column.id !== action.payload
+      );
+      state.filters = nFilters;
+    },
     updateExistingLogic: (state, action) => {
       const {
         filterColumn,
@@ -104,6 +110,7 @@ const advanceFilterSlice = createSlice({
 export const {
   addColumnFilters,
   clearExistingFilters,
+  deleteExistingFilter,
   updateExistingLogic,
   addListofColumnFilters,
 } = advanceFilterSlice.actions;
