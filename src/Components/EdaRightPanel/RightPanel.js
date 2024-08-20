@@ -7,7 +7,6 @@ import AdvanceFilter from "../RightPanel/AdvanceFilter";
 const RightPanel = ({ onOpen, handleEvent, panelOption, panelContent }) => {
   const handleClose = () => {
     handleEvent(false);
-    console.log("close");
   };
   return (
     <Drawer anchor="right" open={onOpen} onClose={handleClose}>
@@ -18,7 +17,7 @@ const RightPanel = ({ onOpen, handleEvent, panelOption, panelContent }) => {
         style={{ width: 900, padding: 20, height: "100vh" }}
       >
         <IconButton
-          style={{ position: "absolute", top: 10, right: 10 }}
+          style={{ position: "absolute", top: 10, right: 10, zIndex: 1000 }}
           onClick={handleClose}
         >
           <CloseIcon />
