@@ -3,8 +3,7 @@
 @import "./Components/TabularReport/tabularReport.scss";
 @import "./Components/Chatbot/chatbot.scss";
 @import "./Components//RightPanel/advanceFilter.scss";
-
-$primary-color: #0078ce;
+@import "./variable.scss";
 
 body {
   //   background-color: $primary-color;
@@ -28,25 +27,25 @@ h1 {
 }
 
 button {
-  color: #ffffff;
+  color: $white-color;
   text-transform: none !important;
   cursor: pointer;
 
   &.btn {
-    background-color: #0076ad !important;
-    color: #ffffff !important;
+    background-color: $primary-color !important;
+    color: $white-color !important;
     box-shadow: none;
     margin: 8px;
 
     &.adv-filter {
-      background-color: #ffffff !important;
-      color: #0076ad !important;
+      background-color: $white-color !important;
+      color: $primary-color !important;
       border: 1px solid !important;
       font-weight: bold;
       // font-size: 16px;
     }
     &.anomaly-btn {
-      background-color: #ffffff !important;
+      background-color: $white-color !important;
       color: #786200 !important;
       border: 1px solid #786200 !important;
       font-weight: bold;
@@ -74,7 +73,7 @@ thead {
 
 tr {
   td {
-    // background-color: #ffffff !important;
+    // background-color: $white-color !important;
   }
 }
 
@@ -125,7 +124,7 @@ Table {
       display: flex;
       align-items: center;
       nav>ol>li>a{
-       color: #0076AD;
+       color: $primary-color;
       }
       >button{
         padding-left: 0;
@@ -143,7 +142,7 @@ Table {
     font-weight: bold;
   }
   button {
-    color: #0076ad;
+    color: $primary-color;
     background-color: transparent;
     border: none;
     font-weight: bold;
@@ -151,10 +150,14 @@ Table {
   }
   .chips {
     display: flex;
-
+    .chip{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     > div {
       background-color: #f1fafe;
-      color: #0076ad;
+      color: $primary-color;
       border-radius: 80px;
       padding: 4px 8px;
       margin: 4px;
@@ -184,9 +187,9 @@ Table {
   }
   button:last-child {
     border-bottom-right-radius: 4px;
-    background-color: #ffffff !important;
-    color: #0076ad !important;
-    border: 1px solid #0076ad;
+    background-color: $white-color !important;
+    color: $primary-color !important;
+    border: 1px solid $primary-color;
     font-weight: bold;
   }
 }

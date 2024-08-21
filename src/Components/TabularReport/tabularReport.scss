@@ -1,3 +1,4 @@
+@import "../../variable.scss";
 .tabular-report-wrapper {
   position: relative;
   margin-left: 8px;
@@ -5,11 +6,23 @@
     position: fixed;
     bottom: 0;
     z-index: 1000;
-    background-color: #ffffff;
+    background-color: $white-color;
     padding: 10px;
     width: 98%;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
     height: 74px;
+  }
+  .tabular-report-table{
+    max-height: 440px;
+    table{
+      margin-bottom: 74px;
+      thead{
+        th{
+          position: sticky;
+          top: 0;
+        }
+      }
+    }
   }
 }
 

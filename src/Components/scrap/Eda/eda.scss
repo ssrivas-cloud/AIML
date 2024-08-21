@@ -1,3 +1,5 @@
+@import "../../variable.scss";
+
 .eda-wrapper {
     table {
         width: auto;
@@ -11,7 +13,7 @@
 
         &.anomaly,
         &.summary {
-            border: 1px solid #0076AD;
+            border: 1px solid $primary-color;
             background-color: #F1FAFE;
             border-radius: 8px;
             padding: 16px;
@@ -60,7 +62,7 @@ h6 {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 60%;
-    background-color: white;
+    background-color: $white-color;
     padding: 20px;
     box-shadow: 24;
     max-height: 80%;

@@ -66,7 +66,9 @@ const TabularReport = ({
       const key = fields[index].reference;
       return (
         anomalyValues[key] &&
-        anomalyValues[key].includes(Number(cell) || cell.toString())
+        anomalyValues[key].includes(
+          cell !== null ? (Number(cell) || cell.toString()) : null
+        )
       );
     });
   };
@@ -74,7 +76,9 @@ const TabularReport = ({
     const key = fields[index].reference;
     return (
       anomalyValues[key] &&
-      anomalyValues[key].includes(Number(cell) || cell.toString())
+      anomalyValues[key].includes(
+        cell !== null ? (Number(cell) || cell.toString()) : null 
+      )
     );
   };
 
@@ -86,15 +90,16 @@ const TabularReport = ({
         {forecastOpen ? (
           <Forecast queryResults={queryResults} numericFields={numericFields} />
         ) : (
-          <TableContainer component={Paper} className="tabular-report-table">
+          <TableContainer component={Paper} className="tabular-report-table" >
             <Table aria-label="simple table">
               <TableHead>
                 <TableRow>
                   {fields.map((field) => {
                     headerName.push(field.reference);
                     return (
-                      <TableCell key={field.reference} scope="col">
+                      <TableCell key={field.reference} scope="col" >
                         {removeBlankSpaces(field.reference)}
+                        
                       </TableCell>
                     );
                   })}
@@ -138,13 +143,12 @@ const TabularReport = ({
 
         <div className="regression-btn">
           <button
-            className={`btn ${
-              chatOpen & !openDialog
+            className={`btn ${chatOpen & !openDialog
                 ? "inactive"
                 : !chatOpen & openDialog
-                ? "adv-filter"
-                : ""
-            }`}
+                  ? "adv-filter"
+                  : ""
+              }`}
             variant="contained"
             onClick={() => dispatch(setChatOpen(true))}
           >

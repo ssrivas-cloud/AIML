@@ -11,7 +11,7 @@ const AppliedFilters = ({
   return (
     <div className="applied-filters">
       <h6>Applied variable</h6>
-      <button onClick={onReset}>Reset all</button>
+      <button onClick={onReset}>Reset&nbsp;all</button>
       <div className="chips">
         {variable1 && (
           <div className="chip">
