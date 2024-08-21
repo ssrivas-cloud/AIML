@@ -1,3 +1,4 @@
+@import "../../variable.scss";
 .advance-filter {
   position: relative;
   height: 100%;
@@ -6,7 +7,7 @@
   flex: 1;
   .filter-list {
     overflow-y: auto;
-    background-color: #ffffff;
+    background-color: $white-color;
     display: flex;
     flex-direction: column;
     gap: 16px;

@@ -1,6 +1,7 @@
+@import "../../variable.scss";
 .header {
-    background-color: #2B84BF;
-    color: white;
+    background-color: $primary-color;
+    color: $white-color;
     display: flex;
     align-items: center;
     padding: 10px 20px;

@@ -348,7 +348,7 @@ const VisualizationQueryComponent = () => {
           <div className="filter-dropdowns">
             {!isLoading && isAnomalyLoaded && isQueryExecutedSuccessfully && (
               <Box sx={{ width: "100%" }}>
-                <FormControl sx={{ minWidth: 200, m: 1 }}>
+                <FormControl sx={{ minWidth: 200, maxWidth:250, m: 1 }}>
                   <InputLabel id="filter-column">Select column</InputLabel>
                   <Select
                     labelId="filter-column"
