@@ -34,6 +34,7 @@ const VisualizationQueryComponent = () => {
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [currentSelection, setCurrentSelection] = useState([]);
+  const [appliedSelection, setAppliedSelecton]  = useState([]);  
   const [panelContent, setPanelContent] = useState({});
   const [panelOption, setPanelOption] = useState("");
   const [anomalies, setAnomalies] = useState({});
@@ -248,6 +249,7 @@ const VisualizationQueryComponent = () => {
     setCurrentSelection(newSelection);
   };
   const applyFilterColumn = () => {
+    setAppliedSelecton(currentSelection);
     forecastOpen && dispatch(setForecastOpen(false));
     setQueryResults((prevState) => {
       const columnIndexes = currentSelection.map((col) =>
@@ -417,7 +419,7 @@ const VisualizationQueryComponent = () => {
                 />
                 {showFilters && (
                   <AppliedFilters
-                    variable2={currentSelection}
+                    variable2={appliedSelection}
                     onReset={handleReset}
                     onRemoveVariable2={removeSingleFilter}
                   />
