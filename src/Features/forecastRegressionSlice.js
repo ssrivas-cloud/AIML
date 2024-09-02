@@ -4,6 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const forecastRegressionSlice = createSlice({
   name: "forecastRegression",
   initialState:{
+    algorithm:'',
     dependentValue:'',
     originalDependentValue:'',
     enablePredict:false,
@@ -13,6 +14,9 @@ const forecastRegressionSlice = createSlice({
     toolTipValue:null
   },
   reducers: {
+    setAlgorithmValue: (state, action) => {
+      state.algorithm = action.payload;
+    },
     setDependentValue: (state, action) => {
       state.dependentValue = action.payload;
     },
@@ -36,5 +40,5 @@ const forecastRegressionSlice = createSlice({
     },
   },
 });
-export const { setEnablePredict,setAddToList,setRegressionOutput,setPredictClick,setToolTipValue, setDependentValue, setOriginalDependentValue } = forecastRegressionSlice.actions;
+export const { setEnablePredict,setAddToList,setRegressionOutput,setPredictClick,setToolTipValue, setDependentValue, setOriginalDependentValue, setAlgorithmValue } = forecastRegressionSlice.actions;
 export default forecastRegressionSlice.reducer;
